@@ -14,17 +14,14 @@ def fetch_new_cookies():
         context = browser.new_context()
         page = context.new_page()
         page.goto('https://accounts.google.com/signin/v2/identifier?service=youtube')
-        # Fill in email
         page.fill('input[type="email"]', YOUTUBE_EMAIL)
         page.click('button:has-text("Next")')
-        page.wait_for_timeout(3000)  # Wait for password field to appear
-
-        # Fill in password
+        page.wait_for_selector('input[type="password"]', timeout=20000)
         page.fill('input[type="password"]', YOUTUBE_PASS)
         page.click('button:has-text("Next")')
-        page.wait_for_timeout(5000)  # Wait for login to complete
-        
+        page.wait_for_timeout(5000)
         page.goto('https://youtube.com')
+
         cookies = context.cookies()
         with open(COOKIES_PATH, 'w') as f:
             for cookie in cookies:

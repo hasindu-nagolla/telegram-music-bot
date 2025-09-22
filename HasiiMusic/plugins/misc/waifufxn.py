@@ -67,14 +67,32 @@ async def animation_command(client: Client, message: Message):
     if not gif_url:
         return await message.reply_text("❌ Couldn't fetch the animation. Please try again later.")
 
-    sender_name = md_escape(message.from_user.first_name)
-    sender = f"[{sender_name}](tg://user?id={message.from_user.id})"
+    # sender_name = md_escape(message.from_user.first_name)
+    # sender = f"[{sender_name}](tg://user?id={message.from_user.id})"
 
-    if message.reply_to_message:
+    # if message.reply_to_message:
+    #     target_name = md_escape(message.reply_to_message.from_user.first_name)
+    #     target = f"[{target_name}](tg://user?id={message.reply_to_message.from_user.id})"
+    # else:
+    #     target = sender
+    
+    # Safely get sender name/id
+    if message.from_user is not None:
+        sender_name = md_escape(message.from_user.first_name)
+        sender_id = message.from_user.id
+    else:
+        sender_name = "Unknown"
+        sender_id = 0  # Optional: or leave blank
+
+    sender = f"[{sender_name}](tg://user?id={sender_id})"
+
+    if message.reply_to_message and message.reply_to_message.from_user is not None:
         target_name = md_escape(message.reply_to_message.from_user.first_name)
-        target = f"[{target_name}](tg://user?id={message.reply_to_message.from_user.id})"
+        target_id = message.reply_to_message.from_user.id
+        target = f"[{target_name}](tg://user?id={target_id})"
     else:
         target = sender
+
 
     action_text = commands[command]['text']
     emoji = commands[command]['emoji']

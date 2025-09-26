@@ -40,7 +40,6 @@ telegraph
 tgcrypto
 unidecode
 wget
-yt-dlp==2025.9.5
 git+https://github.com/CertifiedCoders/youtube-search-python
 aiofiles
 aiohttp

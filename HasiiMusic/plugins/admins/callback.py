@@ -6,6 +6,7 @@ from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMa
 
 from config import (
     BANNED_USERS,
+    lyrical,
     SOUNCLOUD_IMG_URL,
     STREAM_IMG_URL,
     SUPPORT_CHAT,
@@ -34,7 +35,7 @@ from HasiiMusic.utils.database import (
     mute_on,
     set_loop,
 )
-from HasiiMusic.utils.decorators.language import languageCB
+from HasiiMusic.utils.decorators import ActualAdminCB, languageCB
 from HasiiMusic.utils.formatters import seconds_to_min
 from HasiiMusic.utils.inline import close_markup, stream_markup, stream_markup_timer
 from HasiiMusic.utils.stream.autoclear import auto_clean
@@ -226,7 +227,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             if not playlist:
                 await callback.edit_message_text(text_msg)
                 await callback.message.reply_text(
-                    _["admin_6"].format(user_mention, callback.message.chat.title),
+                    _["admin_6"].format(
+                        user_mention, callback.message.chat.title),
                     reply_markup=close_markup(_)
                 )
                 return await JARVIS.stop_stream(chat_id)
@@ -234,7 +236,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             try:
                 await callback.edit_message_text(text_msg)
                 await callback.message.reply_text(
-                    _["admin_6"].format(user_mention, callback.message.chat.title),
+                    _["admin_6"].format(
+                        user_mention, callback.message.chat.title),
                     reply_markup=close_markup(_)
                 )
                 return await JARVIS.stop_stream(chat_id)
@@ -283,7 +286,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
         img = await get_thumb(videoid)
         run = await callback.message.reply_photo(
             photo=img,
-            caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user),
+            caption=_["stream_1"].format(
+                f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
         db[chat_id][0]["mystic"] = run
@@ -308,7 +312,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
         img = await get_thumb(videoid)
         run = await callback.message.reply_photo(
             photo=img,
-            caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user),
+            caption=_["stream_1"].format(
+                f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
         db[chat_id][0]["mystic"] = run
@@ -346,8 +351,10 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
         if videoid == "telegram":
             buttons = stream_markup(_, chat_id)
             run = await callback.message.reply_photo(
-                photo=(TELEGRAM_AUDIO_URL if str(streamtype) == "audio" else TELEGRAM_VIDEO_URL),
-                caption=_["stream_1"].format(SUPPORT_CHAT, title[:23], duration, user),
+                photo=(TELEGRAM_AUDIO_URL if str(streamtype)
+                       == "audio" else TELEGRAM_VIDEO_URL),
+                caption=_["stream_1"].format(
+                    SUPPORT_CHAT, title[:23], duration, user),
                 reply_markup=InlineKeyboardMarkup(buttons)
             )
             db[chat_id][0]["mystic"] = run
@@ -355,8 +362,10 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
         elif videoid == "soundcloud":
             buttons = stream_markup(_, chat_id)
             run = await callback.message.reply_photo(
-                photo=(SOUNCLOUD_IMG_URL if str(streamtype) == "audio" else TELEGRAM_VIDEO_URL),
-                caption=_["stream_1"].format(SUPPORT_CHAT, title[:23], duration, user),
+                photo=(SOUNCLOUD_IMG_URL if str(streamtype)
+                       == "audio" else TELEGRAM_VIDEO_URL),
+                caption=_["stream_1"].format(
+                    SUPPORT_CHAT, title[:23], duration, user),
                 reply_markup=InlineKeyboardMarkup(buttons)
             )
             db[chat_id][0]["mystic"] = run
@@ -366,7 +375,8 @@ async def handle_skip_replay(callback: CallbackQuery, _, chat_id: int, command: 
             img = await get_thumb(videoid)
             run = await callback.message.reply_photo(
                 photo=img,
-                caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user),
+                caption=_["stream_1"].format(
+                    f"https://t.me/{app.username}?start=info_{videoid}", title[:23], duration, user),
                 reply_markup=InlineKeyboardMarkup(buttons)
             )
             db[chat_id][0]["mystic"] = run
@@ -469,3 +479,36 @@ async def markup_timer():
                 continue
 
 asyncio.create_task(markup_timer())
+
+
+# ── Close Button Callback ──
+@app.on_callback_query(filters.regex("close") & ~BANNED_USERS)
+async def close_menu(_, query: CallbackQuery):
+    try:
+        await query.answer()
+        await query.message.delete()
+        msg = await query.message.reply_text(f"✅ ᴄʟᴏꜱᴇᴅ ʙʏ : {query.from_user.mention}")
+        await asyncio.sleep(2)
+        await msg.delete()
+    except:
+        pass
+
+
+# ── Stop Download Callback ──
+@app.on_callback_query(filters.regex("stop_downloading") & ~BANNED_USERS)
+@ActualAdminCB
+async def stop_download(_, query: CallbackQuery, _lang):
+    task = lyrical.get(query.message.id)
+    if not task:
+        return await query.answer(_lang["tg_4"], show_alert=True)
+
+    if task.done() or task.cancelled():
+        return await query.answer(_lang["tg_5"], show_alert=True)
+
+    try:
+        task.cancel()
+        lyrical.pop(query.message.id, None)
+        await query.answer(_lang["tg_6"], show_alert=True)
+        return await query.edit_message_text(_lang["tg_7"].format(query.from_user.mention))
+    except:
+        return await query.answer(_lang["tg_8"], show_alert=True)

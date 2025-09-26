@@ -532,14 +532,12 @@ async def _get_authusers(chat_id: int) -> Dict[str, int]:
     _notes = await authuserdb.find_one({"chat_id": chat_id})
     if not _notes:
         return {}
-    return _notes["notes"]
+    return _notes.get("notes", {})
 
 
 async def get_authuser_names(chat_id: int) -> List[str]:
-    _notes = []
-    for note in await _get_authusers(chat_id):
-        _notes.append(note)
-    return _notes
+    notes = await _get_authusers(chat_id)
+    return list(notes.keys())
 
 
 async def get_authuser(chat_id: int, name: str) -> Union[bool, dict]:

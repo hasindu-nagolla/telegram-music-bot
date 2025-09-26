@@ -1,7 +1,7 @@
 import os
 from pyrogram import Client, filters
 from pyrogram.types import Message
-from pyrogram.errors import FloodWait
+from pyrogram.errors import FloodWait, ChannelInvalid, ChannelPrivate
 from HasiiMusic import app
 from HasiiMusic.misc import SUDOERS
 
@@ -32,6 +32,8 @@ async def link_command_handler(client: Client, message: Message):
 
         try:
             invite_link = await client.export_chat_invite_link(chat.id)
+        except (ChannelInvalid, ChannelPrivate):
+            return await message.reply("🚫 **ɪ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴀᴄᴄᴇss ᴛᴏ ᴛʜɪs ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ.**")
         except FloodWait as e:
             return await message.reply(f"⏳ ʀᴀᴛᴇ ʟɪᴍɪᴛ: ᴡᴀɪᴛ `{e.value}` seconds.")
 
@@ -64,6 +66,8 @@ async def link_command_handler(client: Client, message: Message):
             ),
         )
 
+    except (ValueError):
+        await message.reply("❌ **ɪɴᴠᴀʟɪᴅ ɢʀᴏᴜᴘ ɪᴅ. ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴀ ᴠᴀʟɪᴅ ɢʀᴏᴜᴘ ɪᴅ.**")
     except Exception as e:
         await message.reply_text(f"❌ ᴇʀʀᴏʀ:\n`{str(e)}`")
 

@@ -1,22 +1,20 @@
 import re
-import asyncio
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from youtubesearchpython.__future__ import VideosSearch
 
-# Adjust as needed for your config management
 import config
+
 
 class SpotifyAPI:
     def __init__(self):
-        self.regex = r"^(https:\/\/open.spotify.com\/)(.*)$"
+        self.regex = r"^https:\/\/open\.spotify\.com\/.+"
         self.client_id = config.SPOTIFY_CLIENT_ID
         self.client_secret = config.SPOTIFY_CLIENT_SECRET
         if self.client_id and self.client_secret:
             self.client_credentials_manager = SpotifyClientCredentials(
-                client_id=self.client_id,
-                client_secret=self.client_secret,
+                self.client_id, self.client_secret
             )
             self.spotify = spotipy.Spotify(
                 client_credentials_manager=self.client_credentials_manager
@@ -25,40 +23,33 @@ class SpotifyAPI:
             self.spotify = None
 
     async def valid(self, link: str) -> bool:
-        return bool(re.search(self.regex, link))
+        return bool(re.search(self.regex, link or ""))
 
     async def track(self, link: str):
-        # Run synchronous Spotipy call in thread pool to avoid blocking event loop
-        loop = asyncio.get_event_loop()
-        track = await loop.run_in_executor(None, self.spotify.track, link)
+        if not self.spotify:
+            raise RuntimeError("Spotify credentials not configured")
+        track = self.spotify.track(link)
         info = track["name"]
         for artist in track["artists"]:
             fetched = f' {artist["name"]}'
             if "Various Artists" not in fetched:
                 info += fetched
-        # Search YouTube for the song
         results = VideosSearch(info, limit=1)
-        yt_results = await results.next()
-        first_result = yt_results["result"][0] if yt_results["result"] else None
-        if not first_result:
-            return None, None
-        ytlink = first_result["link"]
-        title = first_result["title"]
-        vidid = first_result["id"]
-        duration_min = first_result["duration"]
-        thumbnail = first_result["thumbnails"][0]["url"].split("?")[0]
+        data = await results.next()
+        r = data["result"][0]
         track_details = {
-            "title": title,
-            "link": ytlink,
-            "vidid": vidid,
-            "duration_min": duration_min,
-            "thumb": thumbnail,
+            "title": r["title"],
+            "link": r["link"],
+            "vidid": r["id"],
+            "duration_min": r["duration"],
+            "thumb": r["thumbnails"][0]["url"].split("?")[0],
         }
-        return track_details, vidid
+        return track_details, track_details["vidid"]
 
     async def playlist(self, url):
-        loop = asyncio.get_event_loop()
-        playlist = await loop.run_in_executor(None, self.spotify.playlist, url)
+        if not self.spotify:
+            raise RuntimeError("Spotify credentials not configured")
+        playlist = self.spotify.playlist(url)
         playlist_id = playlist["id"]
         results = []
         for item in playlist["tracks"]["items"]:
@@ -72,8 +63,9 @@ class SpotifyAPI:
         return results, playlist_id
 
     async def album(self, url):
-        loop = asyncio.get_event_loop()
-        album = await loop.run_in_executor(None, self.spotify.album, url)
+        if not self.spotify:
+            raise RuntimeError("Spotify credentials not configured")
+        album = self.spotify.album(url)
         album_id = album["id"]
         results = []
         for item in album["tracks"]["items"]:
@@ -86,11 +78,12 @@ class SpotifyAPI:
         return results, album_id
 
     async def artist(self, url):
-        loop = asyncio.get_event_loop()
-        artistinfo = await loop.run_in_executor(None, self.spotify.artist, url)
+        if not self.spotify:
+            raise RuntimeError("Spotify credentials not configured")
+        artistinfo = self.spotify.artist(url)
         artist_id = artistinfo["id"]
-        artisttoptracks = await loop.run_in_executor(None, self.spotify.artist_top_tracks, url)
         results = []
+        artisttoptracks = self.spotify.artist_top_tracks(url)
         for item in artisttoptracks["tracks"]:
             info = item["name"]
             for artist in item["artists"]:
@@ -99,9 +92,3 @@ class SpotifyAPI:
                     info += fetched
             results.append(info)
         return results, artist_id
-
-# Usage example (in an async function):
-# spotify_api = SpotifyAPI()
-# if await spotify_api.valid(spotify_url):
-#     track_info, vidid = await spotify_api.track(spotify_url)
-#     # play track_info["link"] with your bot logic

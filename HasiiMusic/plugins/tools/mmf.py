@@ -16,7 +16,11 @@ async def mmf(_, message: Message):
 
     msg = await message.reply_text("❄️")
     text = message.text.split(None, 1)[1]
-    file = await app.download_media(reply_message)
+    try:
+        file = await app.download_media(reply_message)
+    except Exception as e:
+        await msg.edit(f"❌ Failed to download media.\nError: {e}")
+        return
 
     meme = await drawText(file, text)
     await app.send_document(chat_id, document=meme)

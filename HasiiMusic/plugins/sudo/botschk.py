@@ -12,7 +12,7 @@ BOT_LIST = [
     "AvaTheRobot",
     "TheFlashRobot",
     "HasiiXRobot",
-    "GuardShieldRobot"
+    "SafeGramRobot"
 ]
 
 @app.on_message(filters.command("botschk") & filters.group)

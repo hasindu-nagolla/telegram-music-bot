@@ -75,13 +75,22 @@ async def whois_handler(_, message: Message):
         ]])
 
         if user.photo:
-            photo = await app.download_media(user.photo.big_file_id)
-            await app.edit_message_media(
-                chat_id=message.chat.id,
-                message_id=loading.id,
-                media=types.InputMediaPhoto(media=photo, caption=text, parse_mode=enums.ParseMode.HTML),
-                reply_markup=buttons
-            )
+            try:
+                photo = await app.download_media(user.photo.big_file_id)
+                await app.edit_message_media(
+                    chat_id=message.chat.id,
+                    message_id=loading.id,
+                    media=types.InputMediaPhoto(media=photo, caption=text, parse_mode=enums.ParseMode.HTML),
+                    reply_markup=buttons
+                )
+            except Exception:
+                await app.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=loading.id,
+                    text=text,
+                    parse_mode=enums.ParseMode.HTML,
+                    reply_markup=buttons
+                )
         else:
             await app.edit_message_text(
                 chat_id=message.chat.id,

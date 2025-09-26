@@ -10,7 +10,7 @@ from HasiiMusic.core.call import JARVIS
 from HasiiMusic.misc import sudo
 from HasiiMusic.plugins import ALL_MODULES
 from HasiiMusic.utils.database import get_banned_users, get_gbanned
-from HasiiMusic.utils.cookie_handler import fetch_and_store_cookies 
+from HasiiMusic.utils.cookie_handler import fetch_and_store_cookies
 from config import BANNED_USERS
 
 
@@ -22,7 +22,8 @@ async def init():
         and not config.STRING4
         and not config.STRING5
     ):
-        LOGGER(__name__).error("ᴀssɪsᴛᴀɴᴛ sᴇssɪᴏɴ ɴᴏᴛ ғɪʟʟᴇᴅ, ᴘʟᴇᴀsᴇ ғɪʟʟ ᴀ ᴘʏʀᴏɢʀᴀᴍ sᴇssɪᴏɴ...")
+        LOGGER(__name__).error(
+            "ᴀssɪsᴛᴀɴᴛ sᴇssɪᴏɴ ɴᴏᴛ ғɪʟʟᴇᴅ, ᴘʟᴇᴀsᴇ ғɪʟʟ ᴀ ᴘʏʀᴏɢʀᴀᴍ sᴇssɪᴏɴ...")
         exit()
 
     # ✅ Try to fetch cookies at startup
@@ -31,7 +32,6 @@ async def init():
         LOGGER("HasiiMusic").info("ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅")
     except Exception as e:
         LOGGER("HasiiMusic").warning(f"⚠️ᴄᴏᴏᴋɪᴇ ᴇʀʀᴏʀ: {e}")
-
 
     await sudo()
 
@@ -55,7 +55,7 @@ async def init():
     await JARVIS.start()
 
     try:
-        await JARVIS.stream_call("https://te.legra.ph/file/29f784eb49d230ab62e9e.mp4")
+        await JARVIS.stream_call("http://docs.evostream.com/sample_content/assets/sintel1m720p.mp4")
     except NoActiveGroupCall:
         LOGGER("HasiiMusic").error(
             "ᴘʟᴇᴀsᴇ ᴛᴜʀɴ ᴏɴ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ʟᴏɢ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ.\n\nʜᴀꜱɪɪ ʙᴏᴛ sᴛᴏᴘᴘᴇᴅ..."

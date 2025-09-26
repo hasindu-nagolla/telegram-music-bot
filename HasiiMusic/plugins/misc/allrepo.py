@@ -44,7 +44,7 @@ async def get_all_repository_info(username: str) -> str:
         return None
 
     info_lines = [
-        f"🔹 **[{repo['name']}]({repo['html_url']})**\n"
+        f"🖇 **[{repo['name']}]({repo['html_url']})**\n"
         f"⭐ Stars: `{repo['stargazers_count']}` | 🍴 Forks: `{repo['forks_count']}`\n"
         f"📄 {repo['description'] or 'No description'}"
         for repo in data

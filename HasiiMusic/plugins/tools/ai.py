@@ -88,7 +88,13 @@ async def geminivision_handler(client: Client, message: Message):
     await client.send_chat_action(message.chat.id, ChatAction.TYPING)
     status = await message.reply_text("Processing your image, please wait...")
 
-    file_path = await client.download_media(message.reply_to_message.photo.file_id)
+
+    try:
+        file_path = await client.download_media(message.reply_to_message.photo.file_id)
+    except Exception as e:
+        await status.delete()
+        return await message.reply_text(f"❌ Failed to download image.\nError: {e}")
+
     lexica_client = AsyncClient()
 
     try:

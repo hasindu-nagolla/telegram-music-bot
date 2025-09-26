@@ -44,11 +44,46 @@ async def send_typing_action(client: Client, chat_id: int, interval: int = 3):
         pass
 
 
+def _build_fullname(first_name: str | None, last_name: str | None, username: str | None) -> str:
+    first = first_name or ""
+    last = (last_name or "").strip()
+    full = (f"{first} {last}".strip()) or (f"@{username}" if username else "")
+    return full or "there"
+
+
+def _user_mention_text(user) -> str:
+    full = _build_fullname(getattr(user, "first_name", None), getattr(user, "last_name", None), getattr(user, "username", None))
+    mention_attr = getattr(user, "mention", None)
+    if callable(mention_attr):
+        try:
+            return mention_attr(full)
+        except Exception:
+            pass
+    return f"[{full}](tg://user?id={user.id})"
+
+
+def get_requester_identity(message: Message) -> tuple[str, str]:
+    if message.from_user:
+        u = message.from_user
+        full = _build_fullname(u.first_name, getattr(u, "last_name", None), getattr(u, "username", None))
+        return full, _user_mention_text(u)
+    if message.sender_chat:
+        title = message.sender_chat.title or "there"
+        return title, title
+    return "there", "there"
+
+
 async def process_query(client: Client, message: Message, tts: bool = False):
+    full, mention = get_requester_identity(message)
+
     if len(message.command) < 2:
         return await message.reply_text(
-            f"Hello {message.from_user.first_name}, how can I assist you today?"
+            f"Hello {mention}, how can I assist you today?",
+            disable_web_page_preview=True
         )
+
+    if not message.text:
+        return await message.reply_text("Please provide a prompt after the command.")
 
     query = message.text.split(" ", 1)[1].strip()
 

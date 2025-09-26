@@ -13,10 +13,23 @@ async def tiny_sticker(client, message):
         return
     kontol = await message.reply("Processing please wait")
     await kontol.edit_text("🐾")
-    ik = await app.download_media(reply)
-    im1 = Image.open("HasiiMusic/assets/rajnish.png")
+
+    try:
+        ik = await app.download_media(reply)
+    except Exception as e:
+        await kontol.edit_text(f"❌ Failed to download sticker.\nError: {e}")
+        return
+    im1 = Image.open("HasiiMusic/assets/tiny.png")
     if ik.endswith(".tgs"):
-        await app.download_media(reply, "wel2.tgs")
+        try:
+            await app.download_media(reply, "wel2.tgs")
+        except Exception as e:
+            await kontol.edit_text(f"❌ Failed to download animated sticker.\nError: {e}")
+            try:
+                os.remove(ik)
+            except Exception:
+                pass
+            return
         os.system("lottie_convert.py wel2.tgs json.json")
         with open("json.json", "r") as json_file:
             jsn = json_file.read()

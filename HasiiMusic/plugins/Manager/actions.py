@@ -1,20 +1,20 @@
 """
 -------------------------------------------------------------------------
-Single‑user moderation commands with complete edge‑case handling.
+Single-user moderation commands with complete edge-case handling.
 
 • /ban     – ban a user
 • /unban   – unban a user
 • /mute    – mute a user
 • /unmute  – unmute a user
 • /tmute   – temporary mute (e.g., /tmute @user 1h)
-• /kick    – kick a user (auto‑unban after 2s)
+• /kick    – kick a user (auto-unban after 2s)
 • /dban    – delete message & ban (reply only)
 • /sban    – silent ban (no notification)
-• /kickme  – user self‑kick (auto‑unban after 3s)
+• /kickme  – user self-kick (auto-unban after 3s)
 • /tban    – temporary ban (e.g., /tban @user 1d)
 
-All commands accept reply, @username, or user‑ID.
-Usage hints, duplicate‑state checks, and safe RPC handling throughout.
+All commands accept reply, @username, or user-ID.
+Usage hints, duplicate-state checks, and safe RPC handling throughout.
 -------------------------------------------------------------------------
 """
 
@@ -70,6 +70,13 @@ async def _get_member_safe(client, chat_id: int, user_id: int):
     except (UserNotParticipant, RPCError):
         return None
 
+async def _get_bot_member(client, chat_id: int):
+    me = await client.get_me()
+    return await _get_member_safe(client, chat_id, me.id)
+
+def _is_admin_status(status: enums.ChatMemberStatus) -> bool:
+    return status in (enums.ChatMemberStatus.ADMINISTRATOR, enums.ChatMemberStatus.OWNER)
+
 # ────────────────────────────────────────────────────────────
 # /ban
 # ────────────────────────────────────────────────────────────
@@ -82,8 +89,12 @@ async def ban_cmd(client, message: Message):
     uid, name, reason = await extract_user_and_reason(message, client)
     if not uid:
         return
-    mem = await _get_member_safe(client, message.chat.id, uid)
-    if mem and mem.status == enums.ChatMemberStatus.BANNED:
+
+    target = await _get_member_safe(client, message.chat.id, uid)
+    if target and _is_admin_status(target.status):
+        return await message.reply_text("I cannot ban an admin or the group owner.")
+
+    if target and target.status == enums.ChatMemberStatus.BANNED:
         return await message.reply_text("User is already banned.")
 
     try:
@@ -128,8 +139,12 @@ async def mute_cmd(client, message: Message):
     uid, name, reason = await extract_user_and_reason(message, client)
     if not uid:
         return
-    mem = await _get_member_safe(client, message.chat.id, uid)
-    if mem and mem.status == enums.ChatMemberStatus.RESTRICTED and mem.permissions == _DEF_MUTE_PERMS:
+
+    target = await _get_member_safe(client, message.chat.id, uid)
+    if target and _is_admin_status(target.status):
+        return await message.reply_text("I cannot mute an admin or the group owner.")
+
+    if target and target.status == enums.ChatMemberStatus.RESTRICTED and target.permissions == _DEF_MUTE_PERMS:
         return await message.reply_text("User is already muted.")
 
     try:
@@ -191,6 +206,10 @@ async def tmute_cmd(client, message: Message):
         time_arg= message.command[2]
         reason  = message.text.partition(time_arg)[2].strip()
 
+    target = await _get_member_safe(client, message.chat.id, user.id)
+    if target and _is_admin_status(target.status):
+        return await message.reply_text("I cannot mute an admin or the group owner.")
+
     delta = parse_time(time_arg)
     if not delta:
         return await message.reply_text("Invalid time format. Use s/m/h/d suffix.")
@@ -216,6 +235,11 @@ async def kick_cmd(client, message: Message):
     uid, name, reason = await extract_user_and_reason(message, client)
     if not uid:
         return
+
+    target = await _get_member_safe(client, message.chat.id, uid)
+    if target and _is_admin_status(target.status):
+        return await message.reply_text("I cannot kick an admin or the group owner.")
+
     try:
         await client.ban_chat_member(message.chat.id, uid)
         await asyncio.sleep(2)
@@ -237,6 +261,11 @@ async def dban_cmd(client, message: Message):
 
     user   = message.reply_to_message.from_user
     reason = message.text.split(None, 1)[1] if len(message.command) > 1 else None
+
+    target = await _get_member_safe(client, message.chat.id, user.id)
+    if target and _is_admin_status(target.status):
+        return await message.reply_text("I cannot ban an admin or the group owner.")
+
     try:
         await client.ban_chat_member(message.chat.id, user.id)
         await message.reply_to_message.delete()
@@ -258,6 +287,11 @@ async def sban_cmd(client, message: Message):
     uid, _, _ = await extract_user_and_reason(message, client)
     if not uid:
         return
+
+    target = await _get_member_safe(client, message.chat.id, uid)
+    if target and _is_admin_status(target.status):
+        return await message.reply_text("I cannot ban an admin or the group owner.")
+
     try:
         await client.ban_chat_member(message.chat.id, uid)
         await message.delete()  # silent
@@ -273,6 +307,15 @@ async def sban_cmd(client, message: Message):
 async def kickme_cmd(client, message: Message):
     if message.chat.type == enums.ChatType.PRIVATE:
         return
+
+    target = await _get_member_safe(client, message.chat.id, message.from_user.id)
+    if target and _is_admin_status(target.status):
+        return await message.reply_text("Nice try, boss 😅 I can’t kick admins or the owner.")
+
+    bot_mem = await _get_bot_member(client, message.chat.id)
+    if not bot_mem or not getattr(bot_mem, "can_restrict_members", False):
+        return await message.reply_text("I need ban permissions to kick you. Ask an admin to enable it.")
+
     try:
         await client.ban_chat_member(message.chat.id, message.from_user.id)
         await asyncio.sleep(3)
@@ -280,6 +323,8 @@ async def kickme_cmd(client, message: Message):
         await message.reply_text("Kicked so hard, your ancestors felt it. 👟💥")
     except ChatAdminRequired:
         await message.reply_text("I need ban permissions.")
+    except UserAdminInvalid:
+        await message.reply_text("I can’t kick admins or the owner.")
 
 # ────────────────────────────────────────────────────────────
 # /tban
@@ -301,6 +346,10 @@ async def tban_cmd(client, message: Message):
             return await message.reply_text("I can’t find that user.")
         time_arg= message.command[2]
         reason  = message.text.partition(time_arg)[2].strip()
+
+    target = await _get_member_safe(client, message.chat.id, user.id)
+    if target and _is_admin_status(target.status):
+        return await message.reply_text("I cannot ban an admin or the group owner.")
 
     delta = parse_time(time_arg)
     if not delta:

@@ -8,8 +8,7 @@ from HasiiMusic.utils.downloader import download_audio_concurrent
 from HasiiMusic.utils.formatters import seconds_to_min
 
 
-_SC_RE = re.compile(
-    r"^https?://(soundcloud\.com|on\.soundcloud\.com)/.+", re.I)
+_SC_RE = re.compile(r"^https?://(soundcloud\.com|on\.soundcloud\.com)/.+", re.I)
 
 
 class SoundAPI:

@@ -13,4 +13,4 @@ RUN pip install --no-cache-dir -U pip && \
 
 COPY . .
 
-CMD ["python3", "-m", "HasiiMusic"]
+CMD ["python3", "-m", "Tune"]

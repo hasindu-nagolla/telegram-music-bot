@@ -11,13 +11,7 @@ from HasiiMusic import app
 BOT_INFO: Optional[types.User] = None
 BOT_ID: Optional[int] = None
 
-PHOTOS = [
-    "https://telegra.ph/file/3c9c23857075dcaea5892.jpg",
-    "https://telegra.ph/file/f4e58cd6133a033ecd749.jpg",
-    "https://telegra.ph/file/e4645653125f3fbe0ad70.jpg",
-    "https://telegra.ph/file/cd205021bf40f44ad78e4.jpg",
-    "https://telegra.ph/file/05144a16d058f9a7401e5.jpg",
-]
+PHOTOS = "https://files.catbox.moe/139oue.png"
 
 def _is_valid_url(url: Optional[str]) -> bool:
     if not url:
@@ -56,7 +50,6 @@ async def safe_send_photo(chat_id, photo, caption, reply_markup=None, max_retrie
             )
         except Exception as e:
             if attempt == max_retries - 1:
-                print(f"Failed to send photo after {max_retries} attempts: {e}")
                 raise
             await asyncio.sleep(1)
 
@@ -105,13 +98,13 @@ async def join_watcher(_, message: Message):
 
             await safe_send_photo(
                 LOGGER_ID,
-                photo=random.choice(PHOTOS),
+                photo=PHOTOS,
                 caption=caption,
                 reply_markup=reply_markup
             )
     except Exception as e:
-        print(f"Error in join_watcher: {e}")
-
+        pass
+    
 @app.on_message(filters.left_chat_member)
 async def on_left_chat_member(_, message: Message):
     try:
@@ -144,4 +137,4 @@ async def on_left_chat_member(_, message: Message):
                 if attempt == max_retries - 1:
                     print(f"Failed to send left chat message after {max_retries} attempts: {e}")
     except Exception as e:
-        print(f"Error in on_left_chat_member: {e}")
+        pass

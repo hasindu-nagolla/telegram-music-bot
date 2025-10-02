@@ -10,7 +10,7 @@ from HasiiMusic.core.call import JARVIS
 from HasiiMusic.misc import sudo
 from HasiiMusic.plugins import ALL_MODULES
 from HasiiMusic.utils.database import get_banned_users, get_gbanned
-from HasiiMusic.utils.cookie_handler import fetch_and_store_cookies
+from HasiiMusic.utils.cookie_handler import fetch_and_store_cookies 
 from config import BANNED_USERS
 
 
@@ -22,16 +22,14 @@ async def init():
         and not config.STRING4
         and not config.STRING5
     ):
-        LOGGER(__name__).error(
-            "ᴀssɪsᴛᴀɴᴛ sᴇssɪᴏɴ ɴᴏᴛ ғɪʟʟᴇᴅ, ᴘʟᴇᴀsᴇ ғɪʟʟ ᴀ ᴘʏʀᴏɢʀᴀᴍ sᴇssɪᴏɴ...")
+        LOGGER(__name__).error("ᴀssɪsᴛᴀɴᴛ sᴇssɪᴏɴ ɴᴏᴛ ғɪʟʟᴇᴅ, ᴘʟᴇᴀsᴇ ғɪʟʟ ᴀ ᴘʏʀᴏɢʀᴀᴍ sᴇssɪᴏɴ...")
         exit()
 
-    # ✅ Try to fetch cookies at startup
     try:
         await fetch_and_store_cookies()
-        LOGGER("HasiiMusic").info("ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅")
+        LOGGER("Tune").info("ʏᴏᴜᴛᴜʙᴇ ᴄᴏᴏᴋɪᴇs ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ ✅")
     except Exception as e:
-        LOGGER("HasiiMusic").warning(f"⚠️ᴄᴏᴏᴋɪᴇ ᴇʀʀᴏʀ: {e}")
+        LOGGER("Tune").warning(f"⚠️ᴄᴏᴏᴋɪᴇ ᴇʀʀᴏʀ: {e}")
 
     await sudo()
 
@@ -42,36 +40,36 @@ async def init():
         users = await get_banned_users()
         for user_id in users:
             BANNED_USERS.add(user_id)
-    except:
-        pass
+    except Exception as e:
+        LOGGER("Tune").warning(f"ғᴀɪʟᴇᴅ ᴛᴏ ʟᴏᴀᴅ ʙᴀɴɴᴇᴅ ᴜsᴇʀs: {e}")
 
     await app.start()
+
     for all_module in ALL_MODULES:
-        importlib.import_module("HasiiMusic.plugins" + all_module)
+        importlib.import_module("Tune.plugins" + all_module)
 
-    LOGGER("HasiiMusic.plugins").info("ʜᴀꜱɪɪ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...")
-
+    LOGGER("Tune.plugins").info("ᴛᴜɴᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...")
     await userbot.start()
     await JARVIS.start()
 
     try:
-        await JARVIS.stream_call("http://docs.evostream.com/sample_content/assets/sintel1m720p.mp4")
+        await JARVIS.stream_call("https://te.legra.ph/file/29f784eb49d230ab62e9e.mp4")
     except NoActiveGroupCall:
-        LOGGER("HasiiMusic").error(
-            "ᴘʟᴇᴀsᴇ ᴛᴜʀɴ ᴏɴ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ʟᴏɢ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ.\n\nʜᴀꜱɪɪ ʙᴏᴛ sᴛᴏᴘᴘᴇᴅ..."
+        LOGGER("Tune").error(
+            "ᴘʟᴇᴀsᴇ ᴛᴜʀɴ ᴏɴ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴏғ ʏᴏᴜʀ ʟᴏɢ ɢʀᴏᴜᴘ/ᴄʜᴀɴɴᴇʟ.\n\nᴀɴɴɪᴇ ʙᴏᴛ sᴛᴏᴘᴘᴇᴅ..."
         )
         exit()
     except:
         pass
 
     await JARVIS.decorators()
-    LOGGER("HasiiMusic").info(
-        "\x41\x6e\x6e\x69\x65\x20\x4d\x75\x73\x69\x63\x20\x52\x6f\x62\x6f\x74\x20\x53\x74\x61\x72\x74\x65\x64\x20\x53\x75\x63\x63\x65\x73\x73\x66\x75\x6c\x6c\x79\x2e\x2e\x2e"
+    LOGGER("Tune").info(
+        "\x54\x75\x6e\x65\x20\x56\x69\x61\x20\x4d\x75\x73\x69\x63\x20\x42\x6f\x74\x20\x53\x74\x61\x72\x74\x65\x64\x20\x53\x75\x63\x63\x65\x73\x73\x66\x75\x6c\x6c\x79\x2e"
     )
     await idle()
     await app.stop()
     await userbot.stop()
-    LOGGER("HasiiMusic").info("sᴛᴏᴘᴘɪɴɢ ʜᴀꜱɪɪ ᴍᴜsɪᴄ ʙᴏᴛ ...")
+    LOGGER("Tune").info("sᴛᴏᴘᴘɪɴɢ ᴛᴜɴᴇ ᴠɪᴀ ᴍᴜsɪᴄ ʙᴏᴛ ...")
 
 
 if __name__ == "__main__":

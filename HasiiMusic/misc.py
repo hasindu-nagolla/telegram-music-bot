@@ -1,58 +1,75 @@
 import socket
 import time
+
 import heroku3
-
 from pyrogram import filters
-from pyrogram.enums import ChatMemberStatus
 
-from config import HEROKU_API_KEY, HEROKU_APP_NAME, OWNER_ID
+import config
 from HasiiMusic.core.mongo import mongodb
-from .logging import LOGGER
+
+from HasiiMusic.logging import LOGGER
 
 SUDOERS = filters.user()
-COMMANDERS = [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
+
 HAPP = None
 _boot_ = time.time()
+
 
 def is_heroku():
     return "heroku" in socket.getfqdn()
 
+
 XCB = [
-    "/", "@", ".", "com", ":", "git", "heroku", "push",
-    str(HEROKU_API_KEY), "https", str(HEROKU_APP_NAME),
-    "HEAD", "master"
+    "/",
+    "@",
+    ".",
+    "com",
+    ":",
+    "git",
+    "heroku",
+    "push",
+    str(config.HEROKU_API_KEY),
+    "https",
+    str(config.HEROKU_APP_NAME),
+    "HEAD",
+    "master",
 ]
+
 
 def dbb():
     global db
     db = {}
-    LOGGER(__name__).info("ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗")
+    LOGGER(__name__).info(f"ᴅᴀᴛᴀʙᴀsᴇ ʟᴏᴀᴅᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ💗")
+
 
 async def sudo():
     global SUDOERS
-    SUDOERS.add(OWNER_ID)
+    SUDOERS.add(config.OWNER_ID)
     sudoersdb = mongodb.sudoers
-    data = await sudoersdb.find_one({"sudo": "sudo"}) or {}
-    sudoers = data.get("sudoers", [])
-
-    if OWNER_ID not in sudoers:
-        sudoers.append(OWNER_ID)
+    sudoers = await sudoersdb.find_one({"sudo": "sudo"})
+    sudoers = [] if not sudoers else sudoers["sudoers"]
+    if config.OWNER_ID not in sudoers:
+        sudoers.append(config.OWNER_ID)
         await sudoersdb.update_one(
-            {"sudo": "sudo"}, {"$set": {"sudoers": sudoers}}, upsert=True
+            {"sudo": "sudo"},
+            {"$set": {"sudoers": sudoers}},
+            upsert=True,
         )
+    if sudoers:
+        for user_id in sudoers:
+            SUDOERS.add(user_id)
+    LOGGER(__name__).info(f"sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..")
 
-    for user_id in sudoers:
-        SUDOERS.add(user_id)
-
-    LOGGER(__name__).info("sᴜᴅᴏ ᴜsᴇʀs ᴅᴏɴᴇ..")
 
 def heroku():
     global HAPP
-    if is_heroku():
-        if HEROKU_API_KEY and HEROKU_APP_NAME:
+    if is_heroku:
+        if config.HEROKU_API_KEY and config.HEROKU_APP_NAME:
             try:
-                Heroku = heroku3.from_key(HEROKU_API_KEY)
-                HAPP = Heroku.app(HEROKU_APP_NAME)
-                LOGGER(__name__).info("ʜᴇʀᴏᴋᴜ ᴀᴘᴘ ᴄᴏɴғɪɢᴜʀᴇᴅ..")
-            except Exception:
-                LOGGER(__name__).warning("ʏᴏᴜ sʜᴏᴜʟᴅ ʜᴀᴠᴇ ɴᴏᴛ ғɪʟʟᴇᴅ ʜᴇʀᴏᴋᴜ ᴀᴘᴘ ɴᴀᴍᴇ ᴏʀ ᴀᴘɪ ᴋᴇʏ ᴄᴏʀʀᴇᴄᴛʟʏ ᴘʟᴇᴀsᴇ ᴄʜᴇᴄᴋ ɪᴛ...")
+                Heroku = heroku3.from_key(config.HEROKU_API_KEY)
+                HAPP = Heroku.app(config.HEROKU_APP_NAME)
+                LOGGER(__name__).info(f"ʜᴇʀᴏᴋᴜ ᴀᴘᴘ ᴄᴏɴғɪɢᴜʀᴇᴅ..")
+            except BaseException:
+                LOGGER(__name__).warning(
+                    f"ʏᴏᴜ sʜᴏᴜʟᴅ ʜᴀᴠᴇ ɴᴏᴛ ғɪʟʟᴇᴅ ʜᴇʀᴏᴋᴜ ᴀᴘᴘ ɴᴀᴍᴇ ᴏʀ ᴀᴘɪ ᴋᴇʏ ᴄᴏʀʀᴇᴄᴛʟʏ ᴘʟᴇᴀsᴇ ᴄʜᴇᴄᴋ ɪᴛ..."
+                )

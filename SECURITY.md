@@ -1,34 +1,36 @@
-# 🔐 Security Policy
+# Security Policy
 
-## ✅ Supported Versions
+## Supported Versions
 
-The following versions of the project are actively maintained with security updates:
+We currently support the following versions with security updates:
+
 
 | Version | Supported |
-| ------- | --------- |
-| v1.0    | ❌         |
-| v2.0    | ✅         |
+|---------|-----------|
+| v1.0    | ✅         |
+| All other versions | ❌ |
 
 ---
 
-## 📣 Reporting a Vulnerability
+## Reporting a Vulnerability
 
-If you find a security vulnerability, please follow the steps below to report it responsibly:
+If you discover a security vulnerability, please follow these steps:
 
-### 1. Contact Us Privately
+1. **Contact us privately**  
+   Report the issue by emailing us at [rajnishmishraaa1@gmail.com](mailto:rajnishmishraaa1@gmail.com).  
+   Please **do not** create a public GitHub issue to report vulnerabilities.
 
-* Email your findings to: [rajnishmishraaa1@gmail.com](mailto:rajnishmishraaa1@gmail.com)
-* **Do not** open a public issue on GitHub to report security vulnerabilities.
+2. **What to expect**
+   * We'll acknowledge your report within **72 hours**.
+   * We'll work with you to confirm and address the issue.
+   * A patch will be prepared within **30 days**, depending on severity.
 
-### 2. What You Can Expect
-
-* We will acknowledge your report within **72 hours**.
-* Our team will work with you to verify and resolve the issue.
-* A security patch will be issued within **30 days**, depending on the severity.
-
-### 3. Responsible Disclosure Guidelines
-
-* Please keep the details of the vulnerability confidential until a fix is released.
-* We encourage and support responsible disclosure to ensure user safety.
+3. **Responsible Disclosure**
+   * Please keep the issue confidential until a fix is released.
+   * We encourage responsible disclosure to protect our users.
 
 ---
+
+## Thank You
+
+We appreciate your efforts to help keep TuneViaBot and its users secure.

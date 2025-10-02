@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# ======== AnnieXMusic Setup (stable) ========
+# ======== TuneViaBot Setup (stable) ========
 # - Debian/Ubuntu apt only
 # - Required/optional prompts, clear after config
 # - Environment Summary table neatly aligned
@@ -38,13 +38,14 @@ hr(){
 banner(){
   clear
   printf "%s" "$(c magenta)"
-  cat <<'EOF'
+  cat << "EOF"
 
-     _                _        ___           _        _ _
-    / \   _ __  _ __ (_) ___  |_ _|_ __  ___| |_ __ _| | | ___ _ __
-   / _ \ | '_ \| '_ \| |/ _ \  | || '_ \/ __| __/ _` | | |/ _ \ '__|
-  / ___ \| | | | | | | |  __/  | || | | \__ \ || (_| | | |  __/ |
- /_/   \_\_| |_|_| |_|_|\___| |___|_| |_|___/\__\__,_|_|_|\___|_|
+████████╗██╗   ██╗███╗   ██╗███████╗
+╚══██╔══╝██║   ██║████╗  ██║██╔════╝
+   ██║   ██║   ██║██╔██╗ ██║█████╗  
+   ██║   ██║   ██║██║╚██╗██║██╔══╝  
+   ██║   ╚██████╔╝██║ ╚████║███████╗
+   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝╚══════╝                                                                  
 
 EOF
   printf "%s%s%s\n" "$(c bold)" "$(c cyan)A clean, guided setup experience" "$(c reset)"
@@ -122,7 +123,6 @@ write_env(){ umask 077; local tmp; tmp="$(mktemp .env.tmp.XXXXXX)"; {
   printf "API_URL=%s\n"         "$api_url"
   printf "BOT_TOKEN=%s\n"       "$bot_token"
   printf "COOKIE_URL=%s\n"      "$cookie_url"
-  printf "DEEP_API=%s\n"        "$deep_api"
   printf "LOGGER_ID=%s\n"       "$logger"
   printf "MONGO_DB_URI=%s\n"    "$mongo_db"
   printf "OWNER_ID=%s\n"        "$ownid"
@@ -143,7 +143,6 @@ collect_config(){
   prompt_req "STRING SESSION" string_session
   prompt_req "MONGO DB URI" mongo_db
   prompt_req "COOKIE URL" cookie_url
-  prompt_opt "DEEP API" deep_api
   prompt_opt "API_URL"  api_url
   prompt_opt "API_KEY"  api_key
 
@@ -159,7 +158,6 @@ collect_config(){
     "STRING_SESSION|$string_session" \
     "MONGO_DB_URI|$mongo_db" \
     "COOKIE_URL|$cookie_url" \
-    "DEEP_API|$deep_api" \
     "API_URL|$api_url" \
     "API_KEY|$api_key"
 }
@@ -174,7 +172,7 @@ final_notes(){
     warn  "Start script not found — run your launcher from project root"
   fi
   printf "\nLogs:\n  - %s\n  - %s\n  - %s\n" "$APTLOG" "$NODELOG" "$PYLOG"
-  printf "\n%sThank you for using Annie Installer%s\n" "$(c bold)$(c cyan)" "$(c reset)"
+  printf "\n%sThank you for using Tune Installer%s\n" "$(c bold)$(c cyan)" "$(c reset)"
 }
 
 main(){

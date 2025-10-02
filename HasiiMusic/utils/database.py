@@ -501,7 +501,7 @@ async def add_served_chat(chat_id: int):
         return
     return await chatsdb.insert_one({"chat_id": chat_id})
 
-# New function to remove served chat
+
 async def remove_served_chat(chat_id: int):
     if await is_served_chat(chat_id):
         await chatsdb.delete_one({"chat_id": chat_id})
@@ -532,12 +532,14 @@ async def _get_authusers(chat_id: int) -> Dict[str, int]:
     _notes = await authuserdb.find_one({"chat_id": chat_id})
     if not _notes:
         return {}
-    return _notes.get("notes", {})
+    return _notes["notes"]
 
 
 async def get_authuser_names(chat_id: int) -> List[str]:
-    notes = await _get_authusers(chat_id)
-    return list(notes.keys())
+    _notes = []
+    for note in await _get_authusers(chat_id):
+        _notes.append(note)
+    return _notes
 
 
 async def get_authuser(chat_id: int, name: str) -> Union[bool, dict]:

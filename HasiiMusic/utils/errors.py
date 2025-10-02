@@ -10,7 +10,7 @@ from pyrogram.errors.exceptions.forbidden_403 import ChatWriteForbidden
 from HasiiMusic import app
 from config import LOGGER_ID, DEBUG_IGNORE_LOG
 from HasiiMusic.utils.exceptions import is_ignored_error
-from HasiiMusic.utils.pastebin import ANNIEBIN
+from HasiiMusic.utils.pastebin import TuneBin
 
 
 DEBUG_LOG_FILE = "ignored_errors.log"
@@ -20,7 +20,7 @@ DEBUG_LOG_FILE = "ignored_errors.log"
 
 async def send_large_error(text: str, caption: str, filename: str):
     try:
-        paste_url = await ANNIEBIN(text)
+        paste_url = await TuneBin(text)
         if paste_url:
             await app.send_message(LOGGER_ID, f"{caption}\n\n🔗 Paste: {paste_url}")
             return

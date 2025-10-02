@@ -153,7 +153,6 @@ async def without_admin_rights(client, callback: CallbackQuery, _):
 @ActualAdminCB
 async def addition(client, callback: CallbackQuery, _):
     callback_data = callback.data.strip()
-    # Assumes callback data has a space separator with the mode following
     mode = callback_data.split(None, 1)[1]
     if not await is_skipmode(callback.message.chat.id):
         return await callback.answer(_["setting_10"], show_alert=True)

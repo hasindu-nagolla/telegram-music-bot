@@ -19,7 +19,7 @@ from HasiiMusic.utils.database import (
     remove_active_video_chat,
 )
 from HasiiMusic.utils.decorators.language import language
-from HasiiMusic.utils.pastebin import ANNIEBIN
+from HasiiMusic.utils.pastebin import TuneBin
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -100,7 +100,7 @@ async def update_(client, message, _):
     _final_updates_ = _update_response_ + updates
 
     if len(_final_updates_) > 4096:
-        url = await ANNIEBIN(updates)
+        url = await TuneBin(updates)
         nrs = await response.edit(
             f"<b>ᴀ ɴᴇᴡ ᴜᴩᴅᴀᴛᴇ ɪs ᴀᴠᴀɪʟᴀʙʟᴇ ғᴏʀ ᴛʜᴇ ʙᴏᴛ !</b>\n\n"
             f"\u2793 ᴩᴜsʜɪɴɢ ᴜᴩᴅᴀᴛᴇs ɴᴏᴡ\n\n"
@@ -139,7 +139,7 @@ async def update_(client, message, _):
                 text=_["server_10"].format(err),
             )
     else:
-        os.execv(sys.executable, [sys.executable, "-m", "HasiiMusic"])
+        os.execv(sys.executable, [sys.executable, "-m", "Tune"])
 
 
 @app.on_message(filters.command(["restart"]) & SUDOERS)
@@ -163,4 +163,4 @@ async def restart_(_, message):
         "» ʀᴇsᴛᴀʀᴛ ᴘʀᴏᴄᴇss sᴛᴀʀᴛᴇᴅ, ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ғᴏʀ ғᴇᴡ sᴇᴄᴏɴᴅs ᴜɴᴛɪʟ ᴛʜᴇ ʙᴏᴛ sᴛᴀʀᴛs..."
     )
 
-    os.execv(sys.executable, [sys.executable, "-m", "HasiiMusic"])
+    os.execv(sys.executable, [sys.executable, "-m", "Tune"])

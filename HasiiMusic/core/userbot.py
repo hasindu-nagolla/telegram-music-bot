@@ -2,17 +2,13 @@ from pyrogram import Client
 
 import config
 
-from ..logging  import LOGGER
+from HasiiMusic.logging import LOGGER
 
 assistants = []
 assistantids = []
 
 GROUPS_TO_JOIN = [
-    "CertifiedDiscussion",
-    "CertifiedCoders",
-    "CertifiedCodes",
-    "CertifiedDevs",
-    "CertifiedNetwork",
+    "musicxhasii"
 ]
 
 

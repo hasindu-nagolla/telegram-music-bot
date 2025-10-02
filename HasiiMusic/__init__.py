@@ -3,8 +3,7 @@ from HasiiMusic.core.dir import dirr
 from HasiiMusic.core.git import git
 from HasiiMusic.core.userbot import Userbot
 from HasiiMusic.misc import dbb, heroku
-
-from .logging import LOGGER
+from HasiiMusic.logging import LOGGER
 
 dirr()
 git()

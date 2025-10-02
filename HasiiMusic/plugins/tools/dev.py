@@ -22,7 +22,6 @@ async def aexec(code, client, message):
 
 
 async def edit_or_reply(msg: Message, **kwargs):
-    # Use edit_text if the message was sent by the bot itself; otherwise, use reply.
     func = msg.edit_text if msg.from_user.is_self else msg.reply
     await func(**kwargs)
 

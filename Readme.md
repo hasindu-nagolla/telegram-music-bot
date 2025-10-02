@@ -26,35 +26,34 @@
 </p>
 
 <h1 align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?color=FF69B4&width=500&lines=Welcome+to+Annie+%F0%9F%8E%B6+The+Robot;Your+Ultimate+Telegram+Music+Bot" />
+  <img src="https://readme-typing-svg.herokuapp.com?color=FF69B4&width=500&lines=Welcome+to+TuneViaBot+%F0%9F%8E%B6;The+Ultimate+Telegram+Music+Bot" />
 </h1>
+
 
 <p align="center">
   <a href="https://t.me/CertifiedCoders">
-    <img src="https://files.catbox.moe/eh780q.jpg" width="600">
+    <img src="https://files.catbox.moe/d0ynvn.jpg" width="600">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://t.me/AnnieXRobot"><img src="https://img.shields.io/badge/Try%20Bot-@AnnieXRobot-blue?style=for-the-badge&logo=telegram"/></a>
+  <a href="https://t.me/TuneViaBot"><img src="https://img.shields.io/badge/Try%20Bot-@TuneViaBot-blue?style=for-the-badge&logo=telegram" /></a>
 </p>
+
 
 <p align="center">
-  <a href="https://github.com/CertifiedCoders/AnnieXMusic/stargazers"><img src="https://img.shields.io/github/stars/CertifiedCoders/AnnieXMusic?style=flat-square"/></a>
-  <a href="https://github.com/CertifiedCoders/AnnieXMusic/network/members"><img src="https://img.shields.io/github/forks/CertifiedCoders/AnnieXMusic?style=flat-square"/></a>
-  <a href="https://github.com/CertifiedCoders/AnnieXMusic/issues"><img src="https://img.shields.io/github/issues/CertifiedCoders/AnnieXMusic?style=flat-square"/></a>
-  <a href="https://github.com/CertifiedCoders/AnnieXMusic/commits/main"><img src="https://img.shields.io/github/last-commit/CertifiedCoders/AnnieXMusic?style=flat-square"/></a>
-  <a href="https://github.com/CertifiedCoders/AnnieXMusic/actions"><img src="https://img.shields.io/badge/CI-Status-grey?style=flat-square"/></a>
+  <a href="https://github.com/CertifiedCoders/TuneViaBot/stargazers"><img src="https://img.shields.io/github/stars/CertifiedCoders/TuneViaBot?style=flat-square"/></a>
+  <a href="https://github.com/CertifiedCoders/TuneViaBot/network/members"><img src="https://img.shields.io/github/forks/CertifiedCoders/TuneViaBot?style=flat-square"/></a>
+  <a href="https://github.com/CertifiedCoders/TuneViaBot/issues"><img src="https://img.shields.io/github/issues/CertifiedCoders/TuneViaBot?style=flat-square"/></a>
+  <a href="https://github.com/CertifiedCoders/TuneViaBot/commits/main"><img src="https://img.shields.io/github/last-commit/CertifiedCoders/TuneViaBot?style=flat-square"/></a>
+  <a href="https://github.com/CertifiedCoders/TuneViaBot/actions"><img src="https://img.shields.io/badge/CI-Status-grey?style=flat-square"/></a>
 </p>
 
-## 🌟 What is AnnieXMusic?
+## 🌟 What is TuneViaBot?
 
-**AnnieXMusic** is a modern Telegram bot that streams **high-quality music** into group voice chats.
-Powered by **Pyrogram + PyTgCalls**, it supports multiple platforms like **YouTube, Spotify, Apple Music, SoundCloud, Resso, and more**.
-It also includes **basic group management features** for convenience.
+**TuneViaBot** is a blazing fast, modern Telegram music bot built with **Pyrogram** and **PyTgCalls**. It streams high-quality music into your group voice chats and supports various platforms like YouTube, Spotify, Apple Music, and more.
 
 ## 🚀 Features
-
 <table>
 <tr>
 <td>
@@ -66,8 +65,7 @@ It also includes **basic group management features** for convenience.
 | ------------------------- | ------------------------------------------- |
 | 🎶 HQ Music Streaming     | Lag‑free HD audio in group voice chats      |
 | 🌐 Multi‑Platform Sources | YouTube, Spotify, Apple Music, Resso, etc.  |
-| 👮 Group Management Tools | Promote/demote, mute/kick, etc.             |
-| ⚡ Fast Setup             | One‑click Heroku, VPS, or Docker deployment |
+| ⚡ Fast Setup              | One‑click Heroku, VPS, or Docker deployment |
 | 🔄 Auto Config            | Quick setup script with pre‑checks          |
 
 </td>
@@ -88,7 +86,6 @@ STRING_SESSION=      # Required - Generate from @SessionBuilderbot
 MONGO_DB_URI=        # Required - MongoDB connection string
 COOKIE_URL=          # Required - YT Cookies url
 
-DEEP_API=            # Optional - Get from https://deepai.org
 API_KEY=             # Optional - External API key for music Download
 API_URL=             # Optional - External API url for music Download
 ```
@@ -177,10 +174,10 @@ API_URL=             # Optional - External API url for music Download
         <td>Improves YouTube reliability. Never commit raw cookies.</td>
       </tr>
       <tr>
-        <td><code>DEEP_API</code> / <code>API_KEY</code> / <code>API_URL</code></td>
+        <td><code>API_KEY</code> / <code>API_URL</code></td>
         <td>Provider of your choice</td>
-        <td>Sign up → generate key → paste here</td>
-        <td>Optional integrations (AI/extras).</td>
+        <td>generate key → paste here</td>
+        <td>Optional integrations.</td>
       </tr>
     </tbody>
   </table>
@@ -197,7 +194,7 @@ API_URL=             # Optional - External API url for music Download
   <details>
 
 ```bash
-🎵 Deploy AnnieXMusic on VPS
+🎵 Deploy TuneViaBot on VPS
 
 ### Step 1: Update & Install Packages
 sudo apt update && sudo apt upgrade -y
@@ -207,9 +204,9 @@ sudo apt install -y nodejs
 npm install -g npm
 
 ### Step 2: Clone Repo
-git clone https://github.com/CertifiedCoders/AnnieXMusic
-cd AnnieXMusic
-tmux new -s Annie
+git clone https://github.com/CertifiedCoders/TuneViaBot
+cd TuneViaBot
+tmux new -s tune
 
 ### Step 3: Setup & Run
 python3 -m venv venv
@@ -220,9 +217,9 @@ bash start   # Start bot
 
 ### Useful Commands
 tmux detach         # Use Ctrl+B, then D
-tmux attach-session -t Annie # Attach to Running Bot session
-tmux kill-session -t Annie # to kill the running bot session
-rm -rf AnnieXMusic  # Uninstall the repo
+tmux attach-session -t tune # Attach to Running Bot session
+tmux kill-session -t tune # to kill the running bot session
+rm -rf TuneViaBot  # Uninstall the repo
 ```
 
   </details>
@@ -239,38 +236,42 @@ rm -rf AnnieXMusic  # Uninstall the repo
 
 ```bash
 ### Step 1: Clone Repo
-git clone https://github.com/CertifiedCoders/AnnieXMusic
-cd AnnieXMusic
+git clone https://github.com/CertifiedCoders/TuneViaBot
+cd TuneViaBot
 
 ### Step 2: Create .env File
 nano .env
 # Paste your environment variables here and save (Ctrl+O, Enter, Ctrl+X)
 
 ### Step 3: Build Image
-docker build -t anniexmusic .
+docker build -t tuneviabot .
 
 ### Step 4: Run Container
-docker run -d --name annie --env-file .env --restart unless-stopped anniexmusic
+docker run -d --name tune --env-file .env --restart unless-stopped tuneviabot
 
 ### Step 5: Manage Container
-docker logs -f annie        # View logs (Ctrl+C to exit)
-docker stop annie           # Stop container
-docker start annie          # Start again
-docker rm -f annie          # Remove container
-docker rmi anniexmusic      # Remove image
+docker logs -f tune        # View logs (Ctrl+C to exit)
+docker stop tune           # Stop container
+docker start tune          # Start again
+docker rm -f tune          # Remove container
+docker rmi tuneviabot      # Remove image
 ```
 
   </details>
 </div>
 
-##
 
+
+##
 ### ☁️ Quick Deploy
 
 | Platform                | Deploy Link                                                                                                                                                                                               |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🔑 **Generate Session** | <a href="https://t.me/SessionBuilderbot"><img src="https://img.shields.io/badge/Session%20-Generator-blue?style=for-the-badge&logo=telegram"/></a>                                                        |
-| 🌍 **Heroku Deploy**    | <a href="http://dashboard.heroku.com/new?template=https://github.com/CertifiedCoders/AnnieXMusic"><img src="https://img.shields.io/badge/Deploy%20to-Heroku-purple?style=for-the-badge&logo=heroku"/></a> |
+| 🔑 **Generate Session** | <a href="https://t.me/SessionBuilderbot"><img src="https://img.shields.io/badge/Session%20-Generator-blue?style=for-the-badge&logo=telegram"/></a>                                                    |
+| 🌍 **Heroku Deploy**    | <a href="http://dashboard.heroku.com/new?template=https://github.com/CertifiedCoders/TuneViaBot"><img src="https://img.shields.io/badge/Deploy%20to-Heroku-purple?style=for-the-badge&logo=heroku"/></a> |
+
+
+
 
 ## 💬 Community & Support
 
@@ -295,9 +296,9 @@ docker rmi anniexmusic      # Remove image
   </a>
 </p>
 
-##
 
+##
 ### 🔖 Credits
 
-- <b> _sᴩᴇᴄɪᴀʟ ᴛʜᴀɴᴋs ᴛᴏ <a href="https://github.com/AnonymousX1025">ᴀɴᴏɴʏ</a> ғᴏʀ <a href="https://github.com/AnonymousX1025/AnonXMusic">ᴀɴᴏɴxᴍᴜsɪᴄ</a>_ </b>
-- <b> _ᴄʀᴀғᴛᴇᴅ ᴡɪᴛʜ ᴘᴀssɪᴏɴ ʙʏ <a href="https://github.com/CertifiedCoders">ᴄᴇʀᴛɪғɪᴇᴅ ᴄᴏᴅᴇʀs</a>_ </b>
+* <b> *sᴩᴇᴄɪᴀʟ ᴛʜᴀɴᴋs ᴛᴏ <a href="https://github.com/AnonymousX1025">ᴀɴᴏɴʏ</a> ғᴏʀ <a href="https://github.com/AnonymousX1025/AnonXMusic">ᴀɴᴏɴxᴍᴜsɪᴄ</a>* </b>
+* <b> *ᴄʀᴀғᴛᴇᴅ ᴡɪᴛʜ ᴘᴀssɪᴏɴ ʙʏ <a href="https://github.com/CertifiedCoders">ᴄᴇʀᴛɪғɪᴇᴅ ᴄᴏᴅᴇʀs</a>* </b>

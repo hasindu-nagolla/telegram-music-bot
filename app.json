@@ -1,14 +1,13 @@
 {
-  "name": "HASII X MUSIC",
-  "description": "HASII X MUSIC is a powerful and versatile Telegram Music Player Bot built with Python, utilizing Pyrogram and Py-Tgcalls libraries for high-quality group voice chat music streaming. This bot offers seamless playback, custom download server integration, and AI-enhanced features for a premium user experience.",
-  "logo": "https://telegra.ph/file/2c6d1a6f78eba6199933a.jpg",
+  "name": "˹ᴛᴜɴᴇ ᴠɪᴀ ʙᴏᴛ˼",
+  "description": "A Telegram Music Player Bot, written in Python with Pyrogram and Py-Tgcalls.",
+  "logo": "https://files.catbox.moe/7udxph.jpg",
   "keywords": [
-    "python3",
-    "telegram",
-    "music-bot",
-    "pyrogram",
-    "py-tgcalls",
-    "HasiiXMusic"
+  "python3",
+  "telegram",
+  "MusicBot",
+  "py-tgcalls",
+  "pyrogram"
   ],
   "env": {
     "API_ID": {
@@ -58,11 +57,6 @@
     },
     "API_KEY": {
       "description": "(Optional) API Key associated with your custom music download server (used with API_URL).",
-      "required": false,
-      "value": ""
-    },
-    "DEEP_API": {
-      "description": "(Optional) DeepAI API key for enabling AI-powered features. Get it from https://deepai.org/.",
       "required": false,
       "value": ""
     },

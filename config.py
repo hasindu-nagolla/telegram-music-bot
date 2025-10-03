@@ -106,9 +106,7 @@ DURATION_LIMIT = time_to_seconds(f"{DURATION_LIMIT_MIN}:00")
 
 
 # ───── Bot Introduction Messages ───── #
-# AYU = ["💞", "🦋", "🔍", "🧪", "⚡️", "🌈", "🍷", "🥂", "🕊️", "🪄"]
-AYU = ["ඩවුන්ලෝඩ් වෙන්න වෙලා යනවා, මට සිග්නල් නෑ... 😒", "හැබැයි සින්දු අහන්නේ නැතුව ඉන්නත් පුළුවන් 🫢"]
-
+AYU = ["🍌", "🧉", "🌭", "🥪", "🍟", "🍼", "🍷", "🥂", "🍭", "🪄"]
 
 # ───── Runtime Structures ───── #
 BANNED_USERS = filters.user()

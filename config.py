@@ -106,7 +106,7 @@ DURATION_LIMIT = time_to_seconds(f"{DURATION_LIMIT_MIN}:00")
 
 
 # ───── Bot Introduction Messages ───── #
-AYU = ["🍌", "🧉", "🌭", "🥪", "🍟", "🍼", "🍷", "🥂", "🍭", "🪄"]
+AYU = ["💞", "🦋", "🔍", "🧪", "⚡️", "🔥", "🎩", "🌈", "🍷", "🥂", "🥃", "🕊️", "🪄", "💌", "🧨"]
 
 # ───── Runtime Structures ───── #
 BANNED_USERS = filters.user()
@@ -128,3 +128,4 @@ if not COOKIE_URL:
 if not re.match(r"^https://(batbin\.me|pastebin\.com)/[A-Za-z0-9]+$", COOKIE_URL):
     raise SystemExit(
         "[ERROR] - Invalid COOKIE_URL. Use https://batbin.me/<id> or https://pastebin.com/<id>")
+

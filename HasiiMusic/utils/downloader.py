@@ -221,28 +221,6 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            # opts.update(
-            #     {
-            #         "format": "bestaudio/best",
-            #         "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
-            #         "prefer_ffmpeg": True,
-            #         "postprocessors": [
-            #             {
-            #                 "key": "FFmpegExtractAudio",
-            #                 "preferredcodec": "mp3",
-            #                 "preferredquality": "320",
-            #             },
-            #             {"key": "FFmpegMetadata"},
-            #         ],
-            #         "postprocessor_args": [
-            #             "-ar", "48000",
-            #             "-ac", "2",
-            #             "-b:a", "320k",
-            #             "-compression_level", "2",  # better quality than 0
-            #             "-af", "loudnorm=I=-16:TP=-1.5:LRA=11,highpass=f=60,lowpass=f=16000",
-            #         ],
-            #     }
-            # )
             opts.update(
                 {
                     "format": "bestaudio/best",
@@ -252,15 +230,16 @@ async def yt_dlp_download(
                         {
                             "key": "FFmpegExtractAudio",
                             "preferredcodec": "mp3",
-                            "preferredquality": "64",  # lower bitrate target
+                            "preferredquality": "320",
                         },
                         {"key": "FFmpegMetadata"},
                     ],
                     "postprocessor_args": [
-                        "-ar", "22050",      # lower sample rate (was 48000)
-                        "-ac", "1",          # mono channel (half file size)
-                        "-b:a", "64k",       # bitrate (was 320k)
-                        "-compression_level", "9",  # slowest but smallest size
+                        "-ar", "48000",
+                        "-ac", "2",
+                        "-b:a", "320k",
+                        "-compression_level", "2",  # better quality than 0
+                        "-af", "loudnorm=I=-16:TP=-1.5:LRA=11,highpass=f=60,lowpass=f=16000",
                     ],
                 }
             )

@@ -230,7 +230,7 @@ async def yt_dlp_download(
                         {
                             "key": "FFmpegExtractAudio",
                             "preferredcodec": "mp3",
-                            "preferredquality": "192",
+                            "preferredquality": "320",
                         }
                     ],
                     "postprocessor_args": [

@@ -83,10 +83,8 @@ async def _get_session() -> aiohttp.ClientSession:
     async with _session_lock:
         if _session and not _session.closed:
             return _session
-        timeout = aiohttp.ClientTimeout(
-            total=600, sock_connect=20, sock_read=60)
-        connector = TCPConnector(
-            limit=0, ttl_dns_cache=300, enable_cleanup_closed=True)
+        timeout = aiohttp.ClientTimeout(total=600, sock_connect=20, sock_read=60)
+        connector = TCPConnector(limit=0, ttl_dns_cache=300, enable_cleanup_closed=True)
         _session = aiohttp.ClientSession(timeout=timeout, connector=connector)
         return _session
 
@@ -174,33 +172,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update(
-                {
-                    # Choose the highest quality audio (no unnecessary video)
-                    "format": "bestaudio[ext=m4a]/bestaudio/best",
-                    "postprocessors": [
-                        {
-                            "key": "FFmpegExtractAudio",
-                            "preferredcodec": "mp3",
-                            "preferredquality": "320",  # Max quality
-                        },
-                        {
-                            # Apply bass boost and normalization
-                            "key": "FFmpegAudioConvertor",
-                            "prefer_ffmpeg": True,
-                            "preferredcodec": "mp3",
-                            "preferredquality": "320",
-                        },
-                        {
-                            "key": "FFmpegMetadata",
-                        },
-                    ],
-                    "postprocessor_args": [
-                        "-af",
-                        "bass=g=8, dynaudnorm=f=150",  # Bass boost & audio normalization
-                    ],
-                }
-            )
+            opts.update({"format": "bestaudio/best"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
@@ -212,13 +184,7 @@ async def yt_dlp_download(
 
         async def run():
             opts = _ytdlp_base_opts()
-            opts.update(
-                {
-                    "format": "bestvideo[height<=?720]+bestaudio/best",
-                    "merge_output_format": "mp4",
-                    "prefer_ffmpeg": True,
-                }
-            )
+            opts.update({"format": "best[height<=?720][width<=?1280]"})
             return await _with_sem(
                 loop.run_in_executor(None, _download_ytdlp, link, opts)
             )
@@ -240,8 +206,7 @@ async def yt_dlp_download(
                 }
             )
             await _with_sem(
-                loop.run_in_executor(
-                    None, lambda: YoutubeDL(opts).download([link]))
+                loop.run_in_executor(None, lambda: YoutubeDL(opts).download([link]))
             )
             return f"{_DOWNLOAD_DIR}/{safe_title}.mp4"
 
@@ -255,25 +220,20 @@ async def yt_dlp_download(
             opts = _ytdlp_base_opts()
             opts.update(
                 {
-                    "format": format_id or "bestaudio[ext=m4a]/bestaudio/best",
+                    "format": format_id,
                     "outtmpl": f"{_DOWNLOAD_DIR}/{safe_title}.%(ext)s",
                     "prefer_ffmpeg": True,
                     "postprocessors": [
                         {
                             "key": "FFmpegExtractAudio",
                             "preferredcodec": "mp3",
-                            "preferredquality": "320",
+                            "preferredquality": "192",
                         }
-                    ],
-                    "postprocessor_args": [
-                        "-af",
-                        "bass=g=8, dynaudnorm=f=150",  # Bass boost + normalization
                     ],
                 }
             )
             await _with_sem(
-                loop.run_in_executor(
-                    None, lambda: YoutubeDL(opts).download([link]))
+                loop.run_in_executor(None, lambda: YoutubeDL(opts).download([link]))
             )
             return f"{_DOWNLOAD_DIR}/{safe_title}.mp3"
 

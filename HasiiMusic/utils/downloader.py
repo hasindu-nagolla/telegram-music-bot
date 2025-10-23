@@ -249,10 +249,6 @@ async def yt_dlp_download(
                             "equalizer=f=8000:width_type=h:width=50:g=5,"  # Brightness
                             "equalizer=f=16000:width_type=h:width=50:g=6,"  # Air & sparkle
                             "dynaudnorm=f=200:g=15"                        # Dynamic volume normalization
-                            
-                            # Stereo enhancement and spatial widening (3D-like sound)
-                            "apulsator=hz=0.2:amount=1.0,"
-                            "stereotools=level_in=1:level_out=1.2:balance_in=0:phase=1.2"
                         ),
                     ],
                 }

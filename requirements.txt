@@ -12,7 +12,7 @@ motor
 pillow==11.3.0
 psutil
 py-yt-search
-kurigram==2.2.13
+kurigram==2.2.14
 python-dotenv
 ntgcalls==2.0.6
 py-tgcalls==2.2.8

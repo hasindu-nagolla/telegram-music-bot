@@ -46,9 +46,9 @@ async def init():
     await app.start()
 
     for all_module in ALL_MODULES:
-        importlib.import_module("Tune.plugins" + all_module)
+        importlib.import_module("HasiiMusic.plugins" + all_module)
 
-    LOGGER("Tune.plugins").info("ᴛᴜɴᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...")
+    LOGGER("HasiiMusic.plugins").info("ᴛᴜɴᴇ's ᴍᴏᴅᴜʟᴇs ʟᴏᴀᴅᴇᴅ...")
     await userbot.start()
     await StreamController.start()
 

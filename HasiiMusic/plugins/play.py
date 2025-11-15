@@ -15,7 +15,7 @@ def playlist_to_queue(chat_id: int, tracks: list) -> str:
     return text
 
 @app.on_message(
-    filters.command(["play", "playforce", "vplay", "vplayforce"])
+    filters.command(["play", "playforce", "vplay", "vplayforce", "cplay", "cplayforce", "cvplay", "cvplayforce"])
     & filters.group
     & ~app.bl_users
 )
@@ -27,7 +27,30 @@ async def play_hndlr(
     force: bool = False,
     video: bool = False,
     url: str = None,
+    cplay: bool = False,
 ) -> None:
+    # Handle channel play mode
+    chat_id = m.chat.id
+    if cplay:
+        channel_id = await db.get_cmode(m.chat.id)
+        if channel_id is None:
+            return await m.reply_text(
+                "❌ **Channel play is not enabled.**\n\n"
+                "**To enable for linked channel:**\n"
+                "`/channelplay linked`\n\n"
+                "**To enable for any channel:**\n"
+                "`/channelplay [channel_id]`"
+            )
+        try:
+            chat = await app.get_chat(channel_id)
+            chat_id = channel_id
+        except:
+            await db.set_cmode(m.chat.id, None)
+            return await m.reply_text(
+                "❌ **Failed to get channel.**\n\n"
+                "Make sure I'm admin in the channel and channel play is set correctly."
+            )
+
     sent = await m.reply_text(m.lang["play_searching"])
     mention = m.from_user.mention
     media = tg.get_media(m.reply_to_message) if m.reply_to_message else None
@@ -79,11 +102,11 @@ async def play_hndlr(
 
     file.user = mention
     if force:
-        queue.force_add(m.chat.id, file)
+        queue.force_add(chat_id, file)
     else:
-        position = queue.add(m.chat.id, file)
+        position = queue.add(chat_id, file)
 
-        if await db.get_call(m.chat.id):
+        if await db.get_call(chat_id):
             await sent.edit_text(
                 m.lang["play_queued"].format(
                     position,
@@ -93,11 +116,11 @@ async def play_hndlr(
                     m.from_user.mention,
                 ),
                 reply_markup=buttons.play_queued(
-                    m.chat.id, file.id, m.lang["play_now"]
+                    chat_id, file.id, m.lang["play_now"]
                 ),
             )
             if tracks:
-                added = playlist_to_queue(m.chat.id, tracks)
+                added = playlist_to_queue(chat_id, tracks)
                 await app.send_message(
                     chat_id=m.chat.id,
                     text=m.lang["playlist_queued"].format(len(tracks)) + added,
@@ -107,10 +130,10 @@ async def play_hndlr(
     if not file.file_path:
         file.file_path = await yt.download(file.id, video=video)
 
-    await anon.play_media(chat_id=m.chat.id, message=sent, media=file)
+    await anon.play_media(chat_id=chat_id, message=sent, media=file)
     if not tracks:
         return
-    added = playlist_to_queue(m.chat.id, tracks)
+    added = playlist_to_queue(chat_id, tracks)
     await app.send_message(
         chat_id=m.chat.id,
         text=m.lang["playlist_queued"].format(len(tracks)) + added,

@@ -218,6 +218,23 @@ class MongoDB:
             upsert=True,
         )
 
+    # CHANNEL PLAY METHODS
+    async def get_cmode(self, chat_id: int) -> int | None:
+        """Get channel play mode for a chat."""
+        doc = await self.cache.find_one({"_id": f"cplay_{chat_id}"})
+        return doc.get("channel_id") if doc else None
+
+    async def set_cmode(self, chat_id: int, channel_id: int | None) -> None:
+        """Set or remove channel play mode for a chat."""
+        if channel_id is None:
+            await self.cache.delete_one({"_id": f"cplay_{chat_id}"})
+        else:
+            await self.cache.update_one(
+                {"_id": f"cplay_{chat_id}"},
+                {"$set": {"channel_id": channel_id}},
+                upsert=True,
+            )
+
     # PLAY MODE METHODS
     async def get_play_mode(self, chat_id: int) -> bool:
         if chat_id not in self.play_mode:

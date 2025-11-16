@@ -1,19 +1,54 @@
 import os
+import re
 import aiohttp
-from PIL import (Image, ImageDraw, ImageEnhance,
-                 ImageFilter, ImageFont, ImageOps)
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 from HasiiMusic import config
 from HasiiMusic.helpers import Track
 
+# Modern frosted glass design constants
+PANEL_W, PANEL_H = 763, 545
+PANEL_X = (1280 - PANEL_W) // 2
+PANEL_Y = 88
+TRANSPARENCY = 170
+
+THUMB_W, THUMB_H = 542, 273
+THUMB_X = PANEL_X + (PANEL_W - THUMB_W) // 2
+THUMB_Y = PANEL_Y + 36
+
+TITLE_X = 377
+TITLE_Y = THUMB_Y + THUMB_H + 10
+META_Y = TITLE_Y + 45
+
+BAR_X, BAR_Y = 388, META_Y + 45
+BAR_RED_LEN = 280
+BAR_TOTAL_LEN = 480
+
+ICONS_W, ICONS_H = 415, 45
+ICONS_X = PANEL_X + (PANEL_W - ICONS_W) // 2
+ICONS_Y = BAR_Y + 48
+
+MAX_TITLE_WIDTH = 580
+
+
+def trim_to_width(text: str, font: ImageFont.FreeTypeFont, max_w: int) -> str:
+    """Trim text to fit within max width, adding ellipsis if needed."""
+    ellipsis = "…"
+    if font.getlength(text) <= max_w:
+        return text
+    for i in range(len(text) - 1, 0, -1):
+        if font.getlength(text[:i] + ellipsis) <= max_w:
+            return text[:i] + ellipsis
+    return ellipsis
+
 
 class Thumbnail:
     def __init__(self):
-        self.rect = (914, 514)
-        self.fill = (255, 255, 255)
-        self.mask = Image.new("L", self.rect, 0)
-        self.font1 = ImageFont.truetype("HasiiMusic/helpers/Raleway-Bold.ttf", 30)
-        self.font2 = ImageFont.truetype("HasiiMusic/helpers/Inter-Light.ttf", 30)
+        try:
+            self.title_font = ImageFont.truetype("HasiiMusic/helpers/Raleway-Bold.ttf", 32)
+            self.regular_font = ImageFont.truetype("HasiiMusic/helpers/Inter-Light.ttf", 18)
+        except OSError:
+            self.title_font = self.regular_font = ImageFont.load_default()
 
     async def save_thumb(self, output_path: str, url: str) -> str:
         async with aiohttp.ClientSession() as session:
@@ -24,29 +59,85 @@ class Thumbnail:
     async def generate(self, song: Track, size=(1280, 720)) -> str:
         try:
             temp = f"cache/temp_{song.id}.jpg"
-            output = f"cache/{song.id}.png"
+            output = f"cache/{song.id}_modern.png"
             if os.path.exists(output):
                 return output
 
+            # Download and prepare base image
             await self.save_thumb(temp, song.thumbnail)
-            thumb = Image.open(temp).convert("RGBA").resize(size, Image.Resampling.LANCZOS)
-            blur = thumb.filter(ImageFilter.GaussianBlur(25))
-            image = ImageEnhance.Brightness(blur).enhance(.40)
+            base = Image.open(temp).resize(size).convert("RGBA")
+            
+            # Create blurred background
+            bg = ImageEnhance.Brightness(base.filter(ImageFilter.BoxBlur(10))).enhance(0.6)
 
-            _rect = ImageOps.fit(thumb, self.rect, method=Image.LANCZOS, centering=(0.5, 0.5))
-            ImageDraw.Draw(self.mask).rounded_rectangle((0, 0, self.rect[0], self.rect[1]), radius=15, fill=255)
-            _rect.putalpha(self.mask)
-            image.paste(_rect, (183, 30), _rect)
+            # Create frosted glass panel
+            panel_area = bg.crop((PANEL_X, PANEL_Y, PANEL_X + PANEL_W, PANEL_Y + PANEL_H))
+            overlay = Image.new("RGBA", (PANEL_W, PANEL_H), (255, 255, 255, TRANSPARENCY))
+            frosted = Image.alpha_composite(panel_area, overlay)
+            
+            # Apply rounded corners to panel
+            mask = Image.new("L", (PANEL_W, PANEL_H), 0)
+            ImageDraw.Draw(mask).rounded_rectangle((0, 0, PANEL_W, PANEL_H), 50, fill=255)
+            bg.paste(frosted, (PANEL_X, PANEL_Y), mask)
 
-            draw = ImageDraw.Draw(image)
-            draw.text((50, 560), f"{song.channel_name[:25]} | {song.view_count}", font=self.font2, fill=self.fill)
-            draw.text((50, 600), song.title[:50], font=self.font1, fill=self.fill)
-            draw.text((40, 650), "0:01", font=self.font1)
-            draw.line([(140, 670), (1160, 670)], fill=self.fill, width=5, joint="curve")
-            draw.text((1185, 650), song.duration, font=self.font1, fill=self.fill)
+            # Add thumbnail with rounded corners
+            thumb = base.resize((THUMB_W, THUMB_H))
+            tmask = Image.new("L", thumb.size, 0)
+            ImageDraw.Draw(tmask).rounded_rectangle((0, 0, THUMB_W, THUMB_H), 20, fill=255)
+            bg.paste(thumb, (THUMB_X, THUMB_Y), tmask)
 
-            image.save(output)
-            os.remove(temp)
+            # Draw text elements
+            draw = ImageDraw.Draw(bg)
+
+            # Clean and display title
+            clean_title = re.sub(r"\W+", " ", song.title).title()
+            draw.text(
+                (TITLE_X, TITLE_Y),
+                trim_to_width(clean_title, self.title_font, MAX_TITLE_WIDTH),
+                fill="black",
+                font=self.title_font
+            )
+
+            # Metadata
+            draw.text(
+                (TITLE_X, META_Y),
+                f"YouTube | {song.view_count or 'Unknown Views'}",
+                fill="black",
+                font=self.regular_font
+            )
+
+            # Progress bar
+            draw.line([(BAR_X, BAR_Y), (BAR_X + BAR_RED_LEN, BAR_Y)], fill="red", width=6)
+            draw.line([(BAR_X + BAR_RED_LEN, BAR_Y), (BAR_X + BAR_TOTAL_LEN, BAR_Y)], fill="gray", width=5)
+            draw.ellipse([(BAR_X + BAR_RED_LEN - 7, BAR_Y - 7), (BAR_X + BAR_RED_LEN + 7, BAR_Y + 7)], fill="red")
+
+            # Time labels
+            draw.text((BAR_X, BAR_Y + 15), "00:00", fill="black", font=self.regular_font)
+            
+            is_live = getattr(song, 'is_live', False)
+            end_text = "Live" if is_live else song.duration
+            draw.text(
+                (BAR_X + BAR_TOTAL_LEN - (90 if is_live else 60), BAR_Y + 15),
+                end_text,
+                fill="red" if is_live else "black",
+                font=self.regular_font
+            )
+
+            # Control icons (if available)
+            icons_path = "HasiiMusic/helpers/play_icons.png"
+            if os.path.isfile(icons_path):
+                ic = Image.open(icons_path).resize((ICONS_W, ICONS_H)).convert("RGBA")
+                r, g, b, a = ic.split()
+                black_ic = Image.merge("RGBA", (r.point(lambda _: 0), g.point(lambda _: 0), b.point(lambda _: 0), a))
+                bg.paste(black_ic, (ICONS_X, ICONS_Y), black_ic)
+
+            # Save and cleanup
+            bg.save(output)
+            try:
+                os.remove(temp)
+            except OSError:
+                pass
+
             return output
-        except:
-            config.DEFAULT_THUMB
+        except Exception:
+            return config.DEFAULT_THUMB

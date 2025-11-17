@@ -24,6 +24,9 @@ class YouTube:
             r"(youtube\.com/(watch\?v=|shorts/|playlist\?list=)|youtu\.be/)"
             r"([A-Za-z0-9_-]{11}|PL[A-Za-z0-9_-]+)([&?][^\s]*)?"
         )
+        # Cache search results for 10 minutes
+        self.search_cache = {}
+        self.cache_time = {}
 
     def get_cookies(self):
         if not self.checked:
@@ -79,6 +82,17 @@ class YouTube:
         return None
 
     async def search(self, query: str, m_id: int, video: bool = False) -> Track | None:
+        # Check cache first (10-minute TTL)
+        cache_key = f"{query}_{video}"
+        current_time = asyncio.get_event_loop().time()
+        
+        if cache_key in self.search_cache:
+            cached_result, cache_timestamp = self.search_cache[cache_key]
+            if current_time - cache_timestamp < 600:  # 10 minutes
+                # Return cached result with new message_id
+                cached_result.message_id = m_id
+                return cached_result
+        
         _search = VideosSearch(query, limit=1)
         results = await _search.next()
         if results and results["result"]:
@@ -86,7 +100,7 @@ class YouTube:
             duration = data.get("duration")
             is_live = duration is None or duration == "LIVE"
 
-            return Track(
+            track = Track(
                 id=data.get("id"),
                 channel_name=data.get("channel", {}).get("name"),
                 duration=duration if not is_live else "LIVE",
@@ -100,6 +114,15 @@ class YouTube:
                 video=video,
                 is_live=is_live,
             )
+            
+            # Cache the result
+            self.search_cache[cache_key] = (track, current_time)
+            # Limit cache size to 100 entries
+            if len(self.search_cache) > 100:
+                oldest_key = min(self.search_cache.keys(), key=lambda k: self.search_cache[k][1])
+                del self.search_cache[oldest_key]
+            
+            return track
         return None
 
     async def playlist(self, limit: int, user: str, url: str, video: bool) -> list[Track]:

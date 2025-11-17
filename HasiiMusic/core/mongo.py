@@ -12,10 +12,16 @@ class MongoDB:
         Initialize the MongoDB connection.
         """
         self.mongo = AsyncMongoClient(
-            config.MONGO_URL, serverSelectionTimeoutMS=12500)
+            config.MONGO_URL,
+            serverSelectionTimeoutMS=12500,
+            maxPoolSize=50,  # Increase connection pool
+            minPoolSize=10,
+            maxIdleTimeMS=30000
+        )
         self.db = self.mongo.Anon
 
-        self.admin_list = {}
+        self.admin_list = {}  # Cache admin lists
+        self.admin_cache_time = {}  # Track cache freshness
         self.active_calls = {}
         self.blacklisted = []
         self.notified = []
@@ -51,6 +57,12 @@ class MongoDB:
             await self.mongo.admin.command("ping")
             logger.info(
                 f"✅ Database connection successful. ({time() - start:.2f}s)")
+            
+            # Create indexes for faster queries
+            await self.authdb.create_index("_id")
+            await self.langdb.create_index("_id")
+            await self.cache.create_index("_id")
+            
             await self.load_cache()
         except Exception as e:
             raise SystemExit(
@@ -79,8 +91,13 @@ class MongoDB:
     async def get_admins(self, chat_id: int, reload: bool = False) -> list[int]:
         from HasiiMusic.helpers._admins import reload_admins
 
-        if chat_id not in self.admin_list or reload:
+        # Cache admin list for 5 minutes to reduce API calls
+        current_time = time()
+        cache_age = current_time - self.admin_cache_time.get(chat_id, 0)
+        
+        if chat_id not in self.admin_list or reload or cache_age > 300:
             self.admin_list[chat_id] = await reload_admins(chat_id)
+            self.admin_cache_time[chat_id] = current_time
         return self.admin_list[chat_id]
 
     # AUTH METHODS

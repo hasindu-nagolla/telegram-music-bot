@@ -49,7 +49,7 @@
   "help_stats": "<blockquote><u><b>Stats commands:</b></u>\n\n/stats: Shows the bot's stats.</blockquote>",
   "help_sudo": "<blockquote><b><u>Sudo commands:</b></u>\n\n/ac: Shows the active calls count.\n\n/activevc: Shows the list of the active calls.\n\n/broadcast [reply to message]: Broadcasts the message to all the chats.\n-nochat: Excludes groups from the broadcast.\n-user: Include users in the broadcast.\n-copy: Removes the forwarded tag from the broadcast message.\n<b>Example:</b> <code>/broadcast -user -copy</code>\n\n/eval: Executes the given code.\n\n/logs: Sends the log file.\n\n/logger [on|off]: Enables/disables the logger.\n\n/restart: Restarts the bot.\n\n/addsudo: Add a user to the sudo users list.\n/rmsudo: Remove a user from the sudo users list.</blockquote>",
   "lang_choose": "<blockquote>Please choose the language you want to set for the current chat:</blockquote>",
-  "lang_change": "<blockquote>Changing the language of the current chat to: {0}</blockquote>",
+  "lang_change": "Changing the language of the current chat to: {0}",
   "lang_changed": "<blockquote>The language of the current chat has been changed to: <i>{0}</i></blockquote>",
   "lang_same": "<blockquote>The language of the current chat is already set to: {0}</blockquote>",
   "log_fetch": "<blockquote>Fetching logs...</blockquote>",

@@ -71,10 +71,16 @@ class Inline:
 
     def lang_markup(self, _lang: str) -> types.InlineKeyboardMarkup:
         langs = lang.get_languages()
+        
+        # Map language codes to flags
+        flags = {
+            "en": "🇬🇧",
+            "si": "🇱🇰"
+        }
 
         buttons = [
             self.ikb(
-                text=f"{name} ({code}) {'✔️' if code == _lang else ''}",
+                text=f"{flags.get(code, '')} {name} {'✔️' if code == _lang else ''}",
                 callback_data=f"lang_change {code}",
             )
             for code, name in langs.items()

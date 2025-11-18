@@ -5,6 +5,7 @@ This is the main initialization module that sets up logging, configuration,
 and all core components required for the bot to function.
 """
 
+import asyncio
 import time
 import logging
 from logging.handlers import RotatingFileHandler

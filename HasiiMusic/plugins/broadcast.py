@@ -20,16 +20,23 @@ async def _broadcast(_, message: types.Message):
     if broadcasting:
         return await message.reply_text(message.lang["gcast_active"])
 
-    # Get the message text after /broadcast command
-    broadcast_text = message.text.split(None, 1)[1]
+    # Parse flags and extract actual message
+    parts = message.text.split(None, 1)[1].split()
+    flags = [part for part in parts if part.startswith('-')]
+    message_parts = [part for part in parts if not part.startswith('-')]
+    
+    if not message_parts:
+        return await message.reply_text(message.lang["gcast_usage"])
+    
+    broadcast_text = ' '.join(message_parts)
     
     count, ucount = 0, 0
     chats, groups, users = [], [], []
     sent = await message.reply_text(message.lang["gcast_start"])
 
-    if "-nochat" not in message.command:
+    if "-nochat" not in flags:
         groups.extend(await db.get_chats())
-    if "-user" in message.command:
+    if "-user" in flags:
         users.extend(await db.get_users())
 
     chats.extend(groups + users)
@@ -93,5 +100,7 @@ async def _stop_gcast(_, message: types.Message):
             message.from_user.id,
             message.from_user.mention
         )
+
     )).pin(disable_notification=False)
     await message.reply_text(message.lang["gcast_stop"])
+

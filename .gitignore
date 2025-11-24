@@ -9,3 +9,5 @@ __pycache__/
 anony/cookies/*.txt
 *.session
 *.session-journal
+.vscode
+HasiiMusic/plugins/playback-controls/radio.py

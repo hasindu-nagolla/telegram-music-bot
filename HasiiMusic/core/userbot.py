@@ -1,3 +1,11 @@
+# ==============================================================================
+# userbot.py - Assistant/Userbot Client Manager
+# ==============================================================================
+# This file manages assistant accounts (userbots) that join voice chats to play music.
+# Assistants are user accounts (not bots) that can join and stream audio/video.
+# You can configure up to 3 assistants using SESSION1, SESSION2, SESSION3 variables.
+# ==============================================================================
+
 from pyrogram import Client
 
 from HasiiMusic import config, logger
@@ -6,16 +14,23 @@ from HasiiMusic import config, logger
 class Userbot(Client):
     def __init__(self):
         """
-        Initializes the userbot with multiple clients.
-
-        This method sets up clients for the userbot using predefined session strings.
-        Each client is assigned a unique name based on the key in the `clients` dictionary.
+        Initialize userbot with multiple assistant clients.
+        
+        Creates up to 3 assistant clients based on available session strings.
+        Each assistant can independently join voice chats and stream music.
+        More assistants = ability to serve more groups simultaneously.
         """
-        self.clients = []
+        self.clients = []  # List to store all active assistant clients
+        
+        # Map of client names to their session string config keys
         clients = {"one": "SESSION1", "two": "SESSION2", "three": "SESSION3"}
+        
+        # Create a Pyrogram client for each configured session
         for key, string_key in clients.items():
-            name = f"HasiiMusicUB{key[-1]}"
-            session = getattr(config, string_key)
+            name = f"HasiiTuneUB{key[-1]}"  # Unique name: HasiiTuneUB1, HasiiTuneUB2, etc.
+            session = getattr(config, string_key)  # Get session string from config
+            
+            # Create and attach the client as an attribute (self.one, self.two, self.three)
             setattr(
                 self,
                 key,
@@ -23,7 +38,7 @@ class Userbot(Client):
                     name=name,
                     api_id=config.API_ID,
                     api_hash=config.API_HASH,
-                    session_string=session,
+                    session_string=session,  # Pyrogram session string
                 ),
             )
 
@@ -42,22 +57,23 @@ class Userbot(Client):
             3: self.three,
         }
         client = clients[num]
-        await client.start()
         try:
-            await client.send_message(config.LOGGER_ID, "Assistant Started")
-        except:
-            raise SystemExit(
-                f"Assistant {num} failed to send message in log group.")
+            await client.start()
+        except Exception as e:
+            logger.error(f"❌ Assistant {num} failed to start: {e}")
+            return  # Don't raise SystemExit, just skip this assistant
+        
+        try:
+            await client.send_message(config.LOGGER_ID, f"Assistant {num} Started")
+        except Exception as e:
+            logger.warning(f"⚠️ Assistant {num} couldn't send message to logger: {e}")
+            # Continue anyway - this is not critical
 
-        client.id = ub.me.id
-        client.name = ub.me.first_name
-        client.username = ub.me.username
-        client.mention = ub.me.mention
+        client.id = client.me.id if hasattr(client, 'me') and client.me else None
+        client.name = client.me.first_name if hasattr(client, 'me') and client.me else f"Assistant{num}"
+        client.username = client.me.username if hasattr(client, 'me') and client.me else None
+        client.mention = client.me.mention if hasattr(client, 'me') and client.me else client.name
         self.clients.append(client)
-        try:
-            await ub.join_chat("FallenAssociation")
-        except:
-            pass
         logger.info(f"👤 Assistant {num} started as @{client.username}")
 
     async def boot(self):

@@ -3,14 +3,14 @@ import time
 
 from pyrogram import enums, filters, types
 
-from HasiiMusic import anon, app, config, db, lang, queue, tasks, userbot, yt
+from HasiiMusic import tune, app, config, db, lang, queue, tasks, userbot, yt
 from HasiiMusic.helpers import buttons
 
 
 @app.on_message(filters.video_chat_started, group=19)
 @app.on_message(filters.video_chat_ended, group=20)
 async def _watcher_vc(_, m: types.Message):
-    await anon.stop(m.chat.id)
+    await tune.stop(m.chat.id)
 
 
 async def auto_leave():
@@ -23,7 +23,9 @@ async def auto_leave():
                     chat_id = dialog.chat.id
                     if left >= 20:
                         break
-                    if chat_id in [app.logger, -1001686672798, -1001549206010]:
+                    # Skip logger and any excluded chats
+                    excluded = [app.logger] + config.EXCLUDED_CHATS
+                    if chat_id in excluded:
                         continue
                     if dialog.chat.type in [
                         enums.ChatType.GROUP,
@@ -66,25 +68,26 @@ async def update_timer(length=10):
                 played = media.time
                 remaining = duration - played
                 pos = min(int((played / duration) * length), length - 1)
-                timer = "—" * pos + "◉" + "—" * (length - pos - 1)
+                timer_bar = "—" * pos + "●" + "—" * (length - pos - 1)
 
                 if remaining <= 30:
                     next = queue.get_next(chat_id, check=True)
                     if next and not next.file_path:
-                        next.file_path = await yt.download(next.id, video=next.video)
+                        next.file_path = await yt.download(next.id, video=False)
 
                 if remaining < 10:
                     remove = True
+                    timer_text = timer_bar
                 else:
                     remove = False
-                    timer = f"{time.strftime('%M:%S', time.gmtime(played))} | {timer} | -{time.strftime('%M:%S', time.gmtime(remaining))}"
+                    played_time = time.strftime('%M:%S', time.gmtime(played))
+                    remaining_time = time.strftime('%M:%S', time.gmtime(remaining))
+                    timer_text = f"{played_time} {timer_bar} {remaining_time}"
 
                 await app.edit_message_reply_markup(
                     chat_id=chat_id,
                     message_id=message_id,
-                    reply_markup=buttons.controls(
-                        chat_id=chat_id, timer=timer, remove=remove
-                    ),
+                    reply_markup=buttons.controls(chat_id=chat_id, timer=timer_text, remove=remove),
                 )
             except:
                 pass
@@ -106,7 +109,7 @@ async def vc_watcher(sleep=15):
                         chat_id=chat_id, status=_lang["stopped"], remove=True
                     ),
                 )
-                await anon.stop(chat_id)
+                await tune.stop(chat_id)
                 await sent.reply_text(_lang["auto_left"])
 
 

@@ -35,15 +35,15 @@ class Inline:
             keyboard.append(
                 [
                     self.ikb(
-                        text="►", callback_data=f"controls resume {chat_id}"),
+                        text="▷", callback_data=f"controls resume {chat_id}"),
                     self.ikb(
-                        text="❚❚", callback_data=f"controls pause {chat_id}"),
+                        text="∣ ∣", callback_data=f"controls pause {chat_id}"),
                     self.ikb(
                         text="⟳", callback_data=f"controls replay {chat_id}"),
                     self.ikb(
-                        text="►►", callback_data=f"controls skip {chat_id}"),
+                        text=">>", callback_data=f"controls skip {chat_id}"),
                     self.ikb(
-                        text="■", callback_data=f"controls stop {chat_id}"),
+                        text="▣", callback_data=f"controls stop {chat_id}"),
                 ]
             )
         return self.ikm(keyboard)
@@ -72,9 +72,15 @@ class Inline:
     def lang_markup(self, _lang: str) -> types.InlineKeyboardMarkup:
         langs = lang.get_languages()
 
+        # Map language codes to flags
+        flags = {
+            "en": "🇬🇧",
+            "si": "🇱🇰"
+        }
+
         buttons = [
             self.ikb(
-                text=f"{name} ({code}) {'✔️' if code == _lang else ''}",
+                text=f"{flags.get(code, '')} {name} {'✔️' if code == _lang else ''}",
                 callback_data=f"lang_change {code}",
             )
             for code, name in langs.items()
@@ -92,8 +98,13 @@ class Inline:
             [
                 [
                     self.ikb(
-                        text=_text, callback_data=f"controls force {chat_id} {item_id}"
-                    )
+                        text="▷", callback_data=f"controls resume {chat_id}"),
+                    self.ikb(
+                        text="∣ ∣", callback_data=f"controls pause {chat_id}"),
+                    self.ikb(
+                        text=">>", callback_data=f"controls skip {chat_id}"),
+                    self.ikb(
+                        text="▣", callback_data=f"controls stop {chat_id}"),
                 ]
             ]
         )

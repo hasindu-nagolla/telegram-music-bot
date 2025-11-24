@@ -15,7 +15,7 @@
 ## ✨ Features
 
 - 🎵 **High Quality Music Streaming** - Crystal clear audio with STUDIO quality
-- 📺 **Video Playback** - Play music videos in voice chats
+- 📻 **Live Radio Streaming** - 50+ international and local radio stations
 - 🎧 **YouTube Support** - Play music from YouTube links or search
 - 📝 **Queue System** - Manage multiple songs in queue
 - ⚡ **Fast & Reliable** - Built with Pyrogram and PyTgCalls
@@ -95,7 +95,7 @@ docker run -d --env-file .env hasii-music-bot
 
 ### User Commands
 - `/play` - Play a song (YouTube URL or search query)
-- `/vplay` - Play a video in voice chat
+- `/radio` - Browse and play live radio stations
 - `/queue` - View current queue
 - `/ping` - Check bot status
 - `/help` - Show help menu
@@ -123,9 +123,11 @@ docker run -d --env-file .env hasii-music-bot
 
 ### Audio Quality Settings
 The bot streams audio at **STUDIO** quality (highest available) with:
-- **Bitrate**: 320kbps
+- **Codec**: Opus (best quality for music)
+- **Format**: WebM container for audio downloads
 - **Sample Rate**: 48kHz
 - **Channels**: Stereo
+- **Optimization**: 16 concurrent downloads, 1MB chunks
 
 ### Customization
 - Modify language files in `HasiiMusic/locales/`
@@ -146,9 +148,10 @@ The bot streams audio at **STUDIO** quality (highest available) with:
 ## 📝 Notes
 
 - Make sure your bot is admin in both the group and logger group
-- The assistant account needs to join the group for music playback
+- The assistant account will auto-join groups when needed for playback
 - Keep your `.env` file secure and never share it publicly
 - For YouTube downloads, cookies may be required for some videos
+- Radio streams are live - no duration limits or downloads needed
 
 ---
 

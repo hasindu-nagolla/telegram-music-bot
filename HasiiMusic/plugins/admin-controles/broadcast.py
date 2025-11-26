@@ -132,17 +132,40 @@ def _parse_broadcast_command(text: str) -> Tuple[List[str], str]:
     Returns:
         Tuple of (flags list, message text)
     """
-    # Split command and arguments
-    parts = text.split(None, 1)[1].split()
+    # Split command from the rest (preserve everything after command)
+    parts = text.split(None, 1)
+    if len(parts) < 2:
+        return [], ""
     
-    # Separate flags (starting with '-') from message words
-    flags = [part for part in parts if part.startswith('-')]
-    message_parts = [part for part in parts if not part.startswith('-')]
+    remaining_text = parts[1]
     
-    # Reconstruct message from non-flag parts
-    message_text = ' '.join(message_parts)
+    # Extract flags (words starting with '-') from the beginning
+    flags = []
+    lines = remaining_text.split('\n')
+    first_line_parts = lines[0].split()
     
-    return flags, message_text
+    # Collect flags only from first line
+    message_start_index = 0
+    for i, part in enumerate(first_line_parts):
+        if part.startswith('-'):
+            flags.append(part)
+            message_start_index = i + 1
+        else:
+            # Stop collecting flags once we hit non-flag text
+            break
+    
+    # Reconstruct message preserving all newlines and formatting
+    if message_start_index > 0:
+        # Remove flags from first line
+        first_line_without_flags = ' '.join(first_line_parts[message_start_index:])
+        if len(lines) > 1:
+            message_text = first_line_without_flags + '\n' + '\n'.join(lines[1:])
+        else:
+            message_text = first_line_without_flags
+    else:
+        message_text = remaining_text
+    
+    return flags, message_text.strip()
 
 
 async def _get_broadcast_recipients(flags: List[str]) -> Tuple[List[int], List[int]]:

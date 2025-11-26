@@ -92,9 +92,15 @@ class TgCall(PyTgCalls):
                 # Create initial timer display
                 if not media.is_live and media.duration_sec:
                     import time as time_module
-                    played_time = time_module.strftime('%M:%S', time_module.gmtime(0))
-                    total_time = time_module.strftime('%M:%S', time_module.gmtime(media.duration_sec))
-                    timer_text = f"{played_time} ——————————● {total_time}"
+                    played = 0
+                    duration = media.duration_sec
+                    # Build progress bar with same length as update_timer
+                    length = 20
+                    pos = min(int((played / duration) * length), length - 1) if duration else 0
+                    timer_bar = "—" * pos + "●" + "—" * (length - pos - 1)
+                    played_time = time_module.strftime('%M:%S', time_module.gmtime(played))
+                    total_time = time_module.strftime('%M:%S', time_module.gmtime(duration))
+                    timer_text = f"{played_time} {timer_bar} {total_time}"
                     keyboard = buttons.controls(chat_id, timer=timer_text)
                 else:
                     keyboard = buttons.controls(chat_id)

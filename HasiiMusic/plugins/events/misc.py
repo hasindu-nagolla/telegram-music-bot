@@ -68,7 +68,7 @@ async def track_time():
             media.time += 1
 
 
-async def update_timer(length=10):
+async def update_timer(length=20):
     while True:
         await asyncio.sleep(7)
         for chat_id in db.active_calls:
@@ -97,8 +97,8 @@ async def update_timer(length=10):
                 else:
                     remove = False
                     played_time = time.strftime('%M:%S', time.gmtime(played))
-                    remaining_time = time.strftime('%M:%S', time.gmtime(remaining))
-                    timer_text = f"{played_time} {timer_bar} {remaining_time}"
+                    total_time = time.strftime('%M:%S', time.gmtime(duration))
+                    timer_text = f"{played_time} {timer_bar} {total_time}"
 
                 await app.edit_message_reply_markup(
                     chat_id=chat_id,

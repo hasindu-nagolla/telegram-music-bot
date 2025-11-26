@@ -186,6 +186,20 @@ class YouTube:
                         else:
                             logger.error("Live stream URL extraction failed: %s", ex)
                         return None
+                    except yt_dlp.utils.DownloadError as ex:
+                        error_msg = str(ex)
+                        if "failed to load cookies" in error_msg.lower() or "netscape format" in error_msg.lower():
+                            logger.error("❌ Corrupted cookie file detected for live stream, removing: %s", cookie)
+                            # Remove corrupted cookie
+                            if cookie and cookie in self.cookies:
+                                self.cookies.remove(cookie)
+                            try:
+                                os.remove(f"HasiiMusic/cookies/{cookie}")
+                            except:
+                                pass
+                        else:
+                            logger.error("Unexpected error during live stream extraction: %s", ex)
+                        return None
                     except Exception as ex:
                         logger.error("Unexpected error during live stream extraction: %s", ex)
                         return None
@@ -251,9 +265,20 @@ class YouTube:
                         self.cookies.remove(cookie)
                     return None
                 except yt_dlp.utils.DownloadError as ex:
-                    logger.error("❌ Download error: %s", ex)
-                    if cookie and cookie in self.cookies:
-                        self.cookies.remove(cookie)
+                    error_msg = str(ex)
+                    if "failed to load cookies" in error_msg.lower() or "netscape format" in error_msg.lower():
+                        logger.error("❌ Corrupted cookie file detected, removing: %s", cookie)
+                        # Remove corrupted cookie from list and filesystem
+                        if cookie and cookie in self.cookies:
+                            self.cookies.remove(cookie)
+                        try:
+                            os.remove(f"HasiiMusic/cookies/{cookie}")
+                        except:
+                            pass
+                    else:
+                        logger.error("❌ Download error: %s", ex)
+                        if cookie and cookie in self.cookies:
+                            self.cookies.remove(cookie)
                     return None
                 except Exception as ex:
                     logger.error("❌ Unexpected download error: %s", ex)

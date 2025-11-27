@@ -6,12 +6,14 @@ where the bot is active. It supports various options like sending to users only,
 excluding groups, and more.
 
 Commands:
-    /broadcast <message> [-user] [-nochat]: Broadcast a message
+    /broadcast <message> [-user] [-nochat] [-pin] [-pinloud]: Broadcast a message
     /stop_gcast, /stop_broadcast: Stop ongoing broadcast
 
 Flags:
     -user: Also send to individual users (in addition to groups)
     -nochat: Don't send to groups (only valid with -user)
+    -pin: Pin the broadcasted message (silently)
+    -pinloud: Pin the broadcasted message (with notification)
 """
 
 import os
@@ -89,7 +91,7 @@ async def broadcast_message(_, message: types.Message) -> None:
     
     # Send completion message
     await _send_broadcast_completion(
-        message, sent, success_groups, success_users, failed_chats
+        message, sent, success_groups, success_users, failed_chats, media_message
     )
 
 
@@ -230,15 +232,23 @@ async def _send_broadcast(
         groups: List of group chat IDs.
         users: List of user IDs.
         status_message: Message to update with progress.
+        media_message: Optional media message to broadcast.
     
     Returns:
         Tuple of (successful groups count, successful users count, failed chats log)
     """
     global broadcasting
     
+    # Get flags from the original message
+    flags = []
+    if hasattr(status_message, 'reply_to_message') and status_message.reply_to_message:
+        original_text = status_message.reply_to_message.text or ""
+        flags, _ = _parse_broadcast_command(original_text)
+    
     success_groups = 0
     success_users = 0
     failed_log = ""
+    pinned_count = 0
     all_chats = groups + users
     total_chats = len(all_chats)
     
@@ -278,42 +288,74 @@ async def _send_broadcast(
             # If a media message was provided, send media directly (not forward)
             if media_message:
                 caption = text if text else (media_message.caption or "")
+                sent_message = None
                 try:
                     if media_message.photo:
                         file_id = media_message.photo[-1].file_id
-                        await app.send_photo(chat_id=chat_id, photo=file_id, caption=caption)
+                        sent_message = await app.send_photo(chat_id=chat_id, photo=file_id, caption=caption)
                     elif getattr(media_message, 'video', None):
                         file_id = media_message.video.file_id
-                        await app.send_video(chat_id=chat_id, video=file_id, caption=caption)
+                        sent_message = await app.send_video(chat_id=chat_id, video=file_id, caption=caption)
                     elif getattr(media_message, 'audio', None):
                         file_id = media_message.audio.file_id
-                        await app.send_audio(chat_id=chat_id, audio=file_id, caption=caption)
+                        sent_message = await app.send_audio(chat_id=chat_id, audio=file_id, caption=caption)
                     elif getattr(media_message, 'voice', None):
                         file_id = media_message.voice.file_id
-                        await app.send_voice(chat_id=chat_id, voice=file_id, caption=caption)
+                        sent_message = await app.send_voice(chat_id=chat_id, voice=file_id, caption=caption)
                     elif getattr(media_message, 'document', None):
                         file_id = media_message.document.file_id
-                        await app.send_document(chat_id=chat_id, document=file_id, caption=caption)
+                        sent_message = await app.send_document(chat_id=chat_id, document=file_id, caption=caption)
                     elif getattr(media_message, 'animation', None):
                         file_id = media_message.animation.file_id
-                        await app.send_animation(chat_id=chat_id, animation=file_id, caption=caption)
+                        sent_message = await app.send_animation(chat_id=chat_id, animation=file_id, caption=caption)
                     elif getattr(media_message, 'sticker', None):
                         file_id = media_message.sticker.file_id
-                        await app.send_sticker(chat_id=chat_id, sticker=file_id)
+                        sent_message = await app.send_sticker(chat_id=chat_id, sticker=file_id)
                     else:
                         # Fallback to text if media type not recognized
                         if text:
-                            await app.send_message(chat_id, text)
+                            sent_message = await app.send_message(chat_id, text)
                         else:
                             failed_log += f"{chat_id} - Unsupported media type or empty caption\n"
                             await asyncio.sleep(0.3)
                             continue
+                    
+                    # Handle pinning if requested
+                    if sent_message and chat_id in groups:
+                        if "-pin" in flags:
+                            try:
+                                await sent_message.pin(disable_notification=True)
+                                pinned_count += 1
+                            except:
+                                pass
+                        elif "-pinloud" in flags:
+                            try:
+                                await sent_message.pin(disable_notification=False)
+                                pinned_count += 1
+                            except:
+                                pass
+                                
                 except Exception as send_ex:
                     failed_log += f"{chat_id} - Media send failed: {type(send_ex).__name__}: {str(send_ex)}\n"
                     continue
             else:
                 # No media: send text message
-                await app.send_message(chat_id, text)
+                sent_message = await app.send_message(chat_id, text)
+                
+                # Handle pinning if requested  
+                if sent_message and chat_id in groups:
+                    if "-pin" in flags:
+                        try:
+                            await sent_message.pin(disable_notification=True)
+                            pinned_count += 1
+                        except:
+                            pass
+                    elif "-pinloud" in flags:
+                        try:
+                            await sent_message.pin(disable_notification=False)
+                            pinned_count += 1
+                        except:
+                            pass
 
             # Track success
             if chat_id in groups:
@@ -339,27 +381,43 @@ async def _send_broadcast(
             
             # Retry sending after waiting
             try:
+                retry_sent = None
                 if media_message:
                     caption = text if text else (media_message.caption or "")
                     if media_message.photo:
                         file_id = media_message.photo[-1].file_id
-                        await app.send_photo(chat_id=chat_id, photo=file_id, caption=caption)
+                        retry_sent = await app.send_photo(chat_id=chat_id, photo=file_id, caption=caption)
                     elif getattr(media_message, 'video', None):
                         file_id = media_message.video.file_id
-                        await app.send_video(chat_id=chat_id, video=file_id, caption=caption)
+                        retry_sent = await app.send_video(chat_id=chat_id, video=file_id, caption=caption)
                     elif getattr(media_message, 'audio', None):
                         file_id = media_message.audio.file_id
-                        await app.send_audio(chat_id=chat_id, audio=file_id, caption=caption)
+                        retry_sent = await app.send_audio(chat_id=chat_id, audio=file_id, caption=caption)
                     elif getattr(media_message, 'document', None):
                         file_id = media_message.document.file_id
-                        await app.send_document(chat_id=chat_id, document=file_id, caption=caption)
+                        retry_sent = await app.send_document(chat_id=chat_id, document=file_id, caption=caption)
                     elif getattr(media_message, 'animation', None):
                         file_id = media_message.animation.file_id
-                        await app.send_animation(chat_id=chat_id, animation=file_id, caption=caption)
+                        retry_sent = await app.send_animation(chat_id=chat_id, animation=file_id, caption=caption)
                     else:
-                        await app.send_message(chat_id, text)
+                        retry_sent = await app.send_message(chat_id, text)
                 else:
-                    await app.send_message(chat_id, text)
+                    retry_sent = await app.send_message(chat_id, text)
+                
+                # Handle pinning on retry
+                if retry_sent and chat_id in groups:
+                    if "-pin" in flags:
+                        try:
+                            await retry_sent.pin(disable_notification=True)
+                            pinned_count += 1
+                        except:
+                            pass
+                    elif "-pinloud" in flags:
+                        try:
+                            await retry_sent.pin(disable_notification=False)
+                            pinned_count += 1
+                        except:
+                            pass
                     
                 if chat_id in groups:
                     success_groups += 1
@@ -415,7 +473,8 @@ async def _send_broadcast_completion(
     status_message: types.Message,
     success_groups: int,
     success_users: int,
-    failed_log: str
+    failed_log: str,
+    media_message: types.Message | None = None,
 ) -> None:
     """
     Send broadcast completion message with results.
@@ -426,11 +485,29 @@ async def _send_broadcast_completion(
         success_groups: Number of successful group sends.
         success_users: Number of successful user sends.
         failed_log: Log of failed sends.
+        media_message: Optional media message that was broadcast.
     
     Returns:
         None
     """
+    media_type = "text"
+    if media_message:
+        if media_message.photo:
+            media_type = "photo"
+        elif getattr(media_message, 'video', None):
+            media_type = "video"
+        elif getattr(media_message, 'audio', None):
+            media_type = "audio"
+        elif getattr(media_message, 'document', None):
+            media_type = "document"
+        elif getattr(media_message, 'animation', None):
+            media_type = "animation"
+        elif getattr(media_message, 'sticker', None):
+            media_type = "sticker"
+    
     completion_text = message.lang["gcast_end"].format(success_groups, success_users)
+    if media_message:
+        completion_text += f"\n📎 Media type: {media_type}"
     
     # If there were failures, send error file
     if failed_log:

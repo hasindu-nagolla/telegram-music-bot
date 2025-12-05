@@ -87,6 +87,11 @@ def can_manage_vc(func):
             if isinstance(update, types.Message)
             else update.message.chat.id
         )
+        
+        # Skip if no user (channel post or anonymous admin)
+        if not update.from_user:
+            return
+        
         user_id = update.from_user.id
 
         # Sudo users can always manage VC

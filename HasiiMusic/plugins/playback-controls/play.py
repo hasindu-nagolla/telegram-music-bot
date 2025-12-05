@@ -80,6 +80,7 @@ async def play_hndlr(
     mention = m.from_user.mention
     media = tg.get_media(m.reply_to_message) if m.reply_to_message else None
     tracks = []
+    file = None  # Initialize file variable
 
     if url:
         if "playlist" in url:

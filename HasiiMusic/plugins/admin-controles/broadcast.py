@@ -136,6 +136,10 @@ def _parse_broadcast_command(text: str) -> Tuple[List[str], str]:
     Returns:
         Tuple of (flags list, message text)
     """
+    # Handle None or empty text
+    if not text:
+        return [], ""
+    
     # Split command from the rest (preserve everything after command)
     parts = text.split(None, 1)
     if len(parts) < 2:

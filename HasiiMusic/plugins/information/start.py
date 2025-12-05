@@ -36,6 +36,10 @@ async def start(_, message: types.Message):
     - Adds new users to database
     - Sends log to logger group for new users
     """
+    # Skip if message from channel or anonymous admin
+    if not message.from_user:
+        return
+    
     # Check if user is blacklisted
     if message.from_user.id in app.bl_users and message.from_user.id not in db.notified:
         return await message.reply_text(message.lang["bl_user_notify"])
